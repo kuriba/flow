@@ -20,8 +20,8 @@ title="${input_file/.inp/}"
 out=$title.o
 
 # remove existing scratch files
-rm /scratch/abreha.b/gamess_scratch/$title*
-rm /scratch/abreha.b/gamess_scratch/scr/$title*
+rm $scratch/gamess_scratch/$title*
+rm $scratch/gamess_scratch/scr/$title*
 
 # execute job
 time $utils/rungms $input_file

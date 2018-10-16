@@ -1,0 +1,49 @@
+#!/bin/bash
+#SBATCH -J JOBNAME	
+#SBATCH -o JOBNAME.o
+#SBATCH -e JOBNAME.e				
+#SBATCH -N 1	
+#SBATCH -n 16               			
+#SBATCH --mail-user=EMAIL
+#SBATCH --mail-type=END
+#SBATCH --parsable
+
+# source config and function files
+source-config
+
+gen-slurm-report
+
+#name of molecule and out/err files
+title="JOBNAME"
+input_file=$title.com
+log=$title.log
+
+# execute job
+timeout TIME time g16 $input_file
+timeout_status=$?
+
+# termination status (opt successful if termination=1, opt & freq successful if termination=2)
+termination=$(grep 'Normal termination' $log | wc -l)
+
+# end of job preparation for next submissions
+if [ $timeout_status -eq 124 ]; then		# if the run times out
+
+	# submit restart calc
+	bash $FLOW_TOOLS/scripts/restart-opt.sh $input_file
+	setup-sbatch $input_file $FLOW_TOOLS/templates/dft-opt_g16_sbatch_re.txt
+	sbatch $title.sbatch
+		
+elif [ $termination -eq 1 ]; then		# if the run terminated successfully
+
+	# move files to completed directory
+	mv $title* ../completed/
+	cd ../completed/
+	to-all-logs $log
+	setup-freq $log
+	exit 0
+
+else
+	# move files to failed directory
+	mv $title* ../failed_opt/
+	exit 1
+fi

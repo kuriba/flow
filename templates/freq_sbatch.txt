@@ -4,7 +4,7 @@
 #SBATCH --error=JOBNAME.e
 #SBATCH -n 16
 #SBATCH -N 1
-#SBATCH --mail-user=DEFAULT_MAIL
+#SBATCH --mail-user=DEFAULT_EMAIL
 #SBATCH --mail-type=END
 #SBATCH --parsable
 
@@ -35,6 +35,7 @@ elif [ $termination -eq 1 ]; then               # if the run terminated successf
         # move files to completed directory
         mv $title* ../completed/
         cd ../completed/
+		to-all-logs $log
         exit 0
 
 else

@@ -1,8 +1,5 @@
 #!/bin/bash
 
-export DEFAULT_PARTITION=general
-export DEFAULT_MAIL=abreha.b@husky.neu.edu
-
 function upsearch {
     local cur_dir=$PWD
     test / == "$PWD" && return || test -e "$1" && echo "$PWD" && return || cd .. && upsearch "$1"
@@ -36,7 +33,7 @@ function gen-slurm-report {
 function email-sbatch {
 	local title=$1 # title of the job
 	local jobid=$2 # job-id which you would like to be notified about
-	sed "s/JOBID/$jobid/g" $FLOW_TOOLS/templates/email.sbatch | sed "s/EMAIL/$DEFAULT_MAIL/g" | sed "s/JOBNAME/$title/g" | sed "s/PARTITION/$DEFAULT_PARTITION/g" | sbatch 1>/dev/null
+	sed "s/JOBID/$jobid/g" $FLOW_TOOLS/templates/email.sbatch | sed "s/EMAIL/$DEFAULT_EMAIL/g" | sed "s/JOBNAME/$title/g" | sed "s/PARTITION/$DEFAULT_PARTITION/g" | sbatch 1>/dev/null
 }
 
 # function which submits an array of input files
@@ -165,15 +162,15 @@ function pm7-restart {
 # effect: copies a new sbatch file to the current directory and substitutes the placeholders
 function setup-sbatch {
 	local input=$1
-	local sbatch_commands=$2
+	local sbatch_template=$2
 
 	local batch_file="${input/.com/.sbatch}"
 	local title="${input/.com/}"
 
-	cp $sbatch_commands $batch_file
+	cp $sbatch_template $batch_file
 	sed -i "s/JOBNAME/$title/g" $batch_file
 	sed -i "s/PARTITION/$DEFAULT_PARTITION/g" $batch_file
-	sed -i "s/EMAIL/$DEFAULT_MAIL/g" $batch_file
+	sed -i "s/EMAIL/$DEFAULT_EMAIL/g" $batch_file
 }
 
 # sets up frequency calculation from geometry from given log file
@@ -181,16 +178,21 @@ function setup-sbatch {
 # effect: creates an input and sbatch file for a frequency job and submits it
 function setup-freq {
 	local log_file=$1
+	local route=$(grep "#" $log_file | head -1)
+	local opt_keyword=$(echo $route | awk '/opt/' RS=" ")
+	local charge=$(grep 'Charge =' $log_file | awk '{print $3}')
+    local mult=$(grep 'Charge =' $log_file | awk '{print $6}')
 	local freq="${log_file/.log/_freq}"
+	local new_route=$(echo $route | sed "s|$opt_keyword|freq=noraman|")
 
 	# set up freq job
-	bash $FLOW_TOOLS/scripts/make-com.sh -f -i=$log_file -r='#p M06/6-31+G(d,p) freq=noraman' -t=$freq -l="../freq_calcs/"
+	bash $FLOW_TOOLS/scripts/make-com.sh -f -i=$log_file -r="$new_route" -c=$charge -s=$mult -t=$freq -l="../freq_calcs/"
 	cd "../freq_calcs/"
 
 	# set up sbatch
 	cp $FLOW_TOOLS/templates/freq_sbatch.txt $freq.sbatch
 	sed -i "s/JOBNAME/$freq/g" $freq.sbatch
-	sed -i "s/DEFAULT_MAIL/$DEFAULT_MAIL/" $freq.sbatch
+	sed -i "s/DEFAULT_EMAIL/$DEFAULT_EMAIL/" $freq.sbatch
 	sed -i "s/TIME/$DFT_TIME/" $freq.sbatch
 	sbatch $freq.sbatch
 
@@ -200,4 +202,11 @@ function setup-freq {
 function to-all-logs {
 	local log_file=$1
 	cp $log_file $ALL_LOGS
+}
+
+function submit-all-dft-opts {
+	local inchi_key=$1
+	for d in $S0_SOLV $S1_SOLV $T1_SOLV $CAT_RAD_VAC $CAT_RAD_SOLV; do
+		cd $d && sbatch $inchi_key*sbatch;
+	done
 }
