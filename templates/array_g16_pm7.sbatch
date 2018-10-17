@@ -30,7 +30,7 @@ termination=$(grep 'Normal termination' $log | wc -l)
 convergence_fail=$(grep 'Convergence failure' $log | wc -l)
 
 # handle successful job completion
-function fin-handler {
+function fin_handler {
 	title=$1	
 
 	# move files to completed directory
@@ -58,7 +58,7 @@ else
 	termination=$(grep 'Normal termination' $log | wc -l)
 	
 	if [ $termination -eq 1 ]; then         # if the run terminated successfully
-		fin-handler $title
+		fin_handler $title
 		exit 0
 	else
 	    # move files to failed directory
