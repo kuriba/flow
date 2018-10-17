@@ -13,7 +13,7 @@ source_config
 gen_slurm_report
 
 #input file to be processed
-input_file=$(fetch-input $SLURM_ARRAY_TASK_ID "gamess_inp.txt")
+input_file=$(fetch_input $SLURM_ARRAY_TASK_ID "gamess_inp.txt")
 
 #name of molecule and out/err files
 title="${input_file/.inp/}"
