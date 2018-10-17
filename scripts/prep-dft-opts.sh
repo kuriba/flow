@@ -3,7 +3,7 @@
 # script for setting up DFT optimizations after completion of S0 DFT optimization in vacuo
 
 # source config and function files
-source-config
+source_config
 
 pdb_file=$1
 inchi="${pdb_file/_S0_vac.pdb/}"

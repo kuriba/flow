@@ -10,9 +10,9 @@
 #SBATCH --dependency=afterany:SP_DFT_ID
 
 # source config and function files
-source-config
+source_config
 
-gen-slurm-report
+gen_slurm_report
 
 cd $SP_DFT/completed/
 

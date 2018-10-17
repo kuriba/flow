@@ -11,9 +11,9 @@
 # Script for S0 DFT optimization (in vacuo) restart
 
 # source config and function files
-source-config
+source_config
 
-gen-slurm-report
+gen_slurm_report
 
 #name of molecule and out/err files
 title='JOBNAME'
@@ -38,7 +38,7 @@ elif [ $termination -eq 1 ]; then				# if the run completes successfully
 	# move files to completed directory
 	mv $title* ../completed/
 	cd ../completed/
-	to-all-logs $log
+	to_all_logs $log
 
 
 	# make pdb file of DFT optimized S0 (in vacuo) structure
@@ -46,12 +46,12 @@ elif [ $termination -eq 1 ]; then				# if the run completes successfully
 	mv $inchi_key.pdb ../opt_pdbs/
 
 	# setup freq calc
-	setup-freq $log
+	setup_freq $log
 	
 	# make DFT optimization input files
 	cd ../opt_pdbs/
 	bash $FLOW_TOOLS/prep_dft-opts_re.sh $inchi_key.pdb
-	submit-all-dft-opts $inchi_key
+	submit_all_dft_opts $inchi_key
 	exit 0	
 
 else

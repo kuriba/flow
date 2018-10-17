@@ -8,9 +8,9 @@
 #SBATCH --dependency=afterany:S0_DFT_OPT_VAC_ID
 
 # source config and function files
-source-config
+source_config
 
-gen-slurm-report
+gen_slurm_report
 
 # This script runs after the completion of the DFT S0 optimization (in vacuo)
 
@@ -23,25 +23,25 @@ gen-slurm-report
 
 # submit S0 DFT optimization array (in solvent)
 cd $S0_SOLV
-S0_DFT_OPT_SOLV_ID=$(submit-array "$TITLE\_S0_SOLV" g16_inp.txt com $FLOW_TOOLS/templates/array_g16_dft-opt.sbatch $DFT_TIME)
+S0_DFT_OPT_SOLV_ID=$(submit_array "$TITLE\_S0_SOLV" g16_inp.txt com $FLOW_TOOLS/templates/array_g16_dft-opt.sbatch $DFT_TIME)
 wait
 
 # submit S1 DFT optimization array (in solv)
 cd $S1_SOLV
-S1_DFT_OPT_SOLV_ID=$(submit-array "$TITLE\_S1_SOLV" g16_inp.txt com $FLOW_TOOLS/templates/array_g16_dft-opt.sbatch $DFT_TIME)
+S1_DFT_OPT_SOLV_ID=$(submit_array "$TITLE\_S1_SOLV" g16_inp.txt com $FLOW_TOOLS/templates/array_g16_dft-opt.sbatch $DFT_TIME)
 wait
 
 # submit T1 DFT optimization array (in solvent)
 cd $T1_SOLV
-T1_DFT_OPT_SOLV_ID=$(submit-array "$TITLE\_T1_SOLV" g16_inp.txt com $FLOW_TOOLS/templates/array_g16_dft-opt.sbatch $DFT_TIME)
+T1_DFT_OPT_SOLV_ID=$(submit_array "$TITLE\_T1_SOLV" g16_inp.txt com $FLOW_TOOLS/templates/array_g16_dft-opt.sbatch $DFT_TIME)
 wait
 
 # submit cation radical optimization array (in solvent)
 cd $CAT_RAD_SOLV
-CAT_RAD_DFT_OPT_SOLV_ID=$(submit-array "$TITLE\_CAT-RAD_SOLV" g16_inp.txt com $FLOW_TOOLS/templates/array_g16_dft-opt.sbatch $DFT_TIME)
+CAT_RAD_DFT_OPT_SOLV_ID=$(submit_array "$TITLE\_CAT-RAD_SOLV" g16_inp.txt com $FLOW_TOOLS/templates/array_g16_dft-opt.sbatch $DFT_TIME)
 wait
 
 # submit cation radical optimization array (in vacuo)
 cd $CAT_RAD_VAC
-CAT_RAD_DFT_OPT_VAC_ID=$(submit-array "$TITLE\_CAT-RAD_VAC" g16_inp.txt com $FLOW_TOOLS/templates/array_g16_dft-opt.sbatch $DFT_TIME)
+CAT_RAD_DFT_OPT_VAC_ID=$(submit_array "$TITLE\_CAT-RAD_VAC" g16_inp.txt com $FLOW_TOOLS/templates/array_g16_dft-opt.sbatch $DFT_TIME)
 wait

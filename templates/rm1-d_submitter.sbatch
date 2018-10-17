@@ -8,13 +8,13 @@
 #SBATCH --dependency=afterany:PM7_ID
 
 # source config and function files
-source-config
+source_config
 
-gen-slurm-report
+gen_slurm_report
 
 # submits RM1-D array after PM7 array is complete
 cd $RM1_D
-RM1_ID=$(submit-array "$TITLE\_RM1-D" "gamess_inp.txt" "inp" $FLOW_TOOLS/templates/array_gamess_rm1-d.sbatch $DFT_TIME)
+RM1_ID=$(submit_array "$TITLE\_RM1-D" "gamess_inp.txt" "inp" $FLOW_TOOLS/templates/array_gamess_rm1-d.sbatch $DFT_TIME)
 wait
 
 # submits SP-DFT submitter which submits SP-DFT array after RM1-D array is complete

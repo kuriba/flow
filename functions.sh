@@ -6,7 +6,7 @@ function upsearch {
     cd $cur_dir
 }
 
-function source-config {
+function source_config {
     local cur_dir=$PWD
     local main_dir=$(upsearch flow-tools)
     cd $main_dir
@@ -15,7 +15,7 @@ function source-config {
     cd $cur_dir
 }
 
-function gen-slurm-report {
+function gen_slurm_report {
 	printf "%-20s %-15s\n" "CLUSTER" "$SLURM_CLUSTER_NAME"
 	printf "%-20s %-15s\n" "SLURM_JOB_ID" "$SLURM_JOB_ID"
 	printf "%-20s %-15s\n" "SLURM_ARRAY_JOB_ID" "$SLURM_ARRAY_JOB_ID"
@@ -30,7 +30,7 @@ function gen-slurm-report {
 # function which sets up an sbatch email for the given job id
 # use: email-sbatch <title> <jobid>
 # effect: submits a job which waits until the job with the given id completes, then sends an email
-function email-sbatch {
+function email_sbatch {
 	local title=$1 # title of the job
 	local jobid=$2 # job-id which you would like to be notified about
 	sed "s/JOBID/$jobid/g" $FLOW_TOOLS/templates/email.sbatch | sed "s/EMAIL/$DEFAULT_EMAIL/g" | sed "s/JOBNAME/$title/g" | sed "s/PARTITION/$DEFAULT_PARTITION/g" | sbatch 1>/dev/null
@@ -39,7 +39,7 @@ function email-sbatch {
 # function which submits an array of input files
 # use: submit-array <array_title> <inp_file_list> <inp_file_type> <partition> <sbatch_file>
 # effect: submits an array of jobs
-function submit-array {
+function submit_array {
 	local array_title=$1
 	local inp_file_list=$2
 	local inp_file_type=$3
@@ -61,7 +61,7 @@ function submit-array {
 	wait
 
 	# submit separate sbatch for array email
-	email-sbatch $array_title $jobid
+	email_sbatch $array_title $jobid
 	wait
 
 	echo $jobid
@@ -70,7 +70,7 @@ function submit-array {
 # function which renames slurm array output files
 # use: rename-slurm-outputs <id> <title>
 # effect: renames output and error files
-function rename-slurm-outputs {
+function rename_slurm_outputs {
 	local id=$1
 	local title=$2
 	mv *"_$id.o" $title.o
@@ -80,7 +80,7 @@ function rename-slurm-outputs {
 # function which fetches the line number from the given file matching the given slurm array task id
 # use: fetch-input <id> <file>
 # effect: echoes the name of the input file
-function fetch-input {
+function fetch_input {
 	local id=$1
 	local file=$2
 	local input_file=$(sed -n "$id"p $file | cut -f 1 -d '.')
@@ -92,7 +92,7 @@ function fetch-input {
 # basic job handler (only checks for completed or failed and moves files accordingly)
 # use: basic-job-handler <title> <termination>
 # effect moves all files beginning with the given title into the completed or failed directory
-function basic-job-handler {
+function basic_job_handler {
 	local title=$1
 	local termination=$2
 	if [ $termination -ge 1 ]; then # if the run terminated successfully
@@ -107,7 +107,7 @@ function basic-job-handler {
 # creates an xyz file by extracting coordinates from the given log file
 # use: pull-xyz-geom <log>
 # effect: creates an xyz file with the same name as the log file
-function pull-xyz-geom {
+function pull_xyz_geom {
 	local log=$1
 	local title="${log/.log/}"
 	local xyz=$title.xyz
@@ -124,7 +124,7 @@ function pull-xyz-geom {
 # draws a progress bar for a for loops given the barsize and length of the loop
 # use: progress-bar <barsize> <base> <current> <total>
 # effect: prints a progress bar as the for loop runs
-function progress-bar {
+function progress_bar {
 	local barsize=$1
 	local base=$2
 	local current=$3
@@ -150,7 +150,7 @@ function upsearch {
 # sets up the given $file for restart, intended for PM7 optimization
 # use: pm7-restart <com file>
 # effect: modifies the input file by changing the route and deleting the coordinates
-function pm7-restart {
+function pm7_restart {
 	local file=$1
 	local route=$(grep '#' $file)
 	sed -i '/[0-9] [0-9]/,$d' $file
@@ -160,7 +160,7 @@ function pm7-restart {
 # sets up sbatch script for given .com file and sbatch template
 # use: setup-sbatch <com file> <sbatch template>
 # effect: copies a new sbatch file to the current directory and substitutes the placeholders
-function setup-sbatch {
+function setup_sbatch {
 	local input=$1
 	local sbatch_template=$2
 
@@ -176,7 +176,7 @@ function setup-sbatch {
 # sets up frequency calculation from geometry from given log file
 # use: setup-freq <log file>
 # effect: creates an input and sbatch file for a frequency job and submits it
-function setup-freq {
+function setup_freq {
 	local log_file=$1
 	local route=$(grep "#" $log_file | head -1)
 	local opt_keyword=$(echo $route | awk '/opt/' RS=" ")
@@ -199,12 +199,12 @@ function setup-freq {
 	cd "../completed/"
 }
 
-function to-all-logs {
+function to_all_logs {
 	local log_file=$1
 	cp $log_file $ALL_LOGS
 }
 
-function submit-all-dft-opts {
+function submit_all_dft_opts {
 	local inchi_key=$1
 	for d in $S0_SOLV $S1_SOLV $T1_SOLV $CAT_RAD_VAC $CAT_RAD_SOLV; do
 		cd $d && sbatch $inchi_key*sbatch;

@@ -8,9 +8,9 @@
 #SBATCH --parsable
 
 # source config and function files
-source-config
+source_config
 
-gen-slurm-report
+gen_slurm_report
 
 #input file to be processed
 input_file=$(fetch-input $SLURM_ARRAY_TASK_ID g16_inp.txt)
@@ -23,7 +23,7 @@ log=$title.log
 timeout TIME time g16 $input_file
 
 # rename .o and .e files
-rename-slurm-outputs $SLURM_ARRAY_TASK_ID $title
+rename_slurm_outputs $SLURM_ARRAY_TASK_ID $title
 
 # termination status (successful if termination=1)
 termination=$(grep 'Normal termination' $log | wc -l)
@@ -47,12 +47,12 @@ function fin-handler {
 if [ $termination -eq 1 ]; then		# if the run terminated successfully
 	
 	# handle completion
-	fin-handler $title
+	fin_handler $title
 	exit 0
 
 else	
 	# setup and submit restart with calcfc
-	pm7-restart $input_file
+	pm7_restart $input_file
 	time g16 $name
 	
 	termination=$(grep 'Normal termination' $log | wc -l)

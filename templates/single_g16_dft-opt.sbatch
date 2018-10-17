@@ -9,9 +9,9 @@
 #SBATCH --parsable
 
 # source config and function files
-source-config
+source_config
 
-gen-slurm-report
+gen_slurm_report
 
 #name of molecule and out/err files
 title="JOBNAME"
@@ -30,7 +30,7 @@ if [ $timeout_status -eq 124 ]; then		# if the run times out
 
 	# submit restart calc
 	bash $FLOW_TOOLS/scripts/restart-opt.sh $input_file
-	setup-sbatch $input_file $FLOW_TOOLS/templates/dft-opt_g16_sbatch_re.txt
+	setup_sbatch $input_file $FLOW_TOOLS/templates/dft-opt_g16_sbatch_re.txt
 	sbatch $title.sbatch
 		
 elif [ $termination -eq 1 ]; then		# if the run terminated successfully
@@ -38,8 +38,8 @@ elif [ $termination -eq 1 ]; then		# if the run terminated successfully
 	# move files to completed directory
 	mv $title* ../completed/
 	cd ../completed/
-	to-all-logs $log
-	setup-freq $log
+	to_all_logs $log
+	setup_freq $log
 	exit 0
 
 else

@@ -9,9 +9,9 @@
 #SBATCH --parsable
 
 # source config and function files
-source-config
+source_config
 
-gen-slurm-report
+gen_slurm_report
 
 # Script for DFT optimization restart
 
@@ -35,8 +35,8 @@ if [ $timeout_status -eq 124 ]; then            # if the run times out
 elif [ $termination -eq 1 ]; then               # if the run terminated successfully
         # move files to completed directory
         mv $title* ../completed/ && cd ../completed/
-        to-all-logs $log
-        setup-freq $log
+        to_all_logs $log
+        setup_freq $log
         exit 0
 else
         # move files to failed directory

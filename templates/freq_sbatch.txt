@@ -9,9 +9,9 @@
 #SBATCH --parsable
 
 # Script for freq calculation
-source-config
+source_config
 
-gen-slurm-report
+gen_slurm_report
 
 #name of molecule and output file
 title='JOBNAME'
@@ -35,7 +35,7 @@ elif [ $termination -eq 1 ]; then               # if the run terminated successf
         # move files to completed directory
         mv $title* ../completed/
         cd ../completed/
-		to-all-logs $log
+		to_all_logs $log
         exit 0
 
 else
