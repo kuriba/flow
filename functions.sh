@@ -15,6 +15,17 @@ function source_config {
     cd $cur_dir
 }
 
+function copy_opt_pdbs {
+	local opt_pdbs=$(for file in $S0_VAC/opt_pdbs/*.pdb; do base=$(basename $file); echo "${base/_S0_vac.pdb/}"; done)
+	local to_copy=$(for file in $opt_pdbs; do c=$(ls completed/$file* 2>/dev/null | wc -l); if [[ $c -eq 0 ]]; then echo $file; fi; done)
+	for file in $to_copy; do cp $S0_VAC/opt_pdbs/$file*.pdb .; done
+}
+
+function move_freq_to_temp {
+	mkdir temp
+	for file in *freq.log; do mv "${file/_freq.log/}"* temp; done
+}
+
 function gen_slurm_report {
 	printf "%-20s %-15s\n" "CLUSTER" "$SLURM_CLUSTER_NAME"
 	printf "%-20s %-15s\n" "SLURM_JOB_ID" "$SLURM_JOB_ID"
@@ -163,13 +174,13 @@ function pm7_restart {
 function setup_sbatch {
 	local input=$1
 	local sbatch_template=$2
-
 	local batch_file="${input/.com/.sbatch}"
 	local title="${input/.com/}"
 
 	cp $sbatch_template $batch_file
 	sed -i "s/JOBNAME/$title/g" $batch_file
 	sed -i "s/PARTITION/$DEFAULT_PARTITION/g" $batch_file
+	sed -i "s/TIME/$DFT_TIME/g" $batch_file
 	sed -i "s/EMAIL/$DEFAULT_EMAIL/g" $batch_file
 }
 

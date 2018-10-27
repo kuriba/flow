@@ -8,9 +8,7 @@ total_pdbs=$(ls -f unopt_pdbs/*.pdb | wc -l)
 directory_name=$(basename `pwd`)
 
 # print header
-bold=$(tput bold)
-normal=$(tput sgr0)
-now=$(date)
+bold=$(tput bold); normal=$(tput sgr0); now=$(date)
 echo -e "\n\t\t$now"
 echo -e "\t\tReport for ${bold}$directory_name${normal}\n\t\tNum. Molecules: $total_unique\n\t\tTotal Structures: $total_pdbs\n"
  
@@ -18,7 +16,8 @@ echo -e "\t\tReport for ${bold}$directory_name${normal}\n\t\tNum. Molecules: $to
 echo -e "\t\t\t\t\t\t  ${bold}Pre-DFT Optimization${normal}"
 
 # print header
-printf "%20s %14s %14s %14s %14s %14s %14s\n" '' "completed" "incomplete" "running" "resubmissions" "failed_opt" "failed_freq"
+header_dimension='%20s %14s %14s %14s %14s %14s %14s\n'
+printf "$header_dimension" '' "completed" "incomplete" "running" "resubmissions" "failed_opt" "failed_freq"
 
 function percentage {
 	NUMER=$1; DENOM=$2
@@ -48,7 +47,7 @@ get_prog sp-tddft $total_unique log 'SP-TD-DFT'
 # table title
 echo -e "\n\t\t\t\t\t\t  ${bold}DFT Optimization${normal}"
 # header
-printf "%20s %14s %14s %14s %14s %14s %14s\n" '' "completed" "incomplete" "running" "resubmissions" "failed_opt" "failed_freq"
+printf "$header_dimension" '' "completed" "incomplete" "running" "resubmissions" "failed_opt" "failed_freq"
 
 function get_prog {
 	DIR=$1; TOTAL=$2; OUT_TYPE=$3; NAME=$4
