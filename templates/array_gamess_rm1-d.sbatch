@@ -24,7 +24,7 @@ rm $scratch/gamess_scratch/$title*
 rm $scratch/gamess_scratch/scr/$title*
 
 # execute job
-time $utils/rungms $input_file
+time $FLOW/utils/rungms $input_file
 
 # rename .o and .e files
 rename_slurm_outputs $SLURM_ARRAY_TASK_ID $title
