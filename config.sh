@@ -22,7 +22,7 @@ export T1_SOLV=$(readlink -e t1_solv)
 export UNOPT_PDBS=$(readlink -e unopt_pdbs)
 
 # useful variables
-export DEFAULT_EMAIL=abreha.b@husky.neu.edu
+export DEFAULT_EMAIL="$USER@husky.neu.edu"
 export DFT_TIME=1420m
 export PM7_TIME=140m
 export TITLE=$(basename $MAIN_DIR)
