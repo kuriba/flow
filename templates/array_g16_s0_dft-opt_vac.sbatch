@@ -3,7 +3,7 @@
 #SBATCH -o %A_%a.o				
 #SBATCH -e %A_%a.e				
 #SBATCH -N 1			
-#SBATCH -n 16               			
+#SBATCH -n 14               			
 #SBATCH --array=1-TOTAL%50 			
 #SBATCH --parsable
 
@@ -40,9 +40,7 @@ if [ $timeout_status -eq 124 ]; then		# if the run times out
 	cd $S0_VAC/resubmits/
 
 	# submit restart calc
-	bash $FLOW_TOOLS/scripts/restart-opt.sh $input_file
-	setup_sbatch $input_file $FLOW_TOOLS/templates/s0_dft-opt_vac_g16_sbatch_re.txt
-	sbatch $title.sbatch
+	bash $FLOW_TOOLS/scripts/restart_opt $title $FLOW_TOOLS/templates/s0_dft-opt_vac_g16_sbatch_re.txt
 		
 elif [ $termination -eq 1 ]; then		# if the run terminated successfully
 

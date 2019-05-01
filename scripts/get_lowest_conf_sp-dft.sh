@@ -7,8 +7,8 @@
 
 # molecule of interest
 mol=$1
-confs=()
-energies=()
+declare -a confs=()
+declare -a energies=()
 
 # gather energies of all conformers of the input molecule
 for conf in $mol*.log; do
@@ -21,6 +21,6 @@ done
 min_index=$(echo "${energies[*]}" | tr ' ' '\n' | awk 'NR==1{min=$0}NR>1 && $1<min{min=$1;pos=NR}END{print pos}')
 
 # get the lowest energy conformer
-min_conf=${confs[$min_index]}
+min_conf=${confs[$(($min_index - 1))]}
 
 echo "${min_conf/_sp.log/}"

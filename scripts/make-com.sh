@@ -23,10 +23,14 @@ for i in "$@"; do
 	esac
 done
 
-
 # errors
 if [ -z "$INPUT" ]; then echo 'error: input geometry not provided; use -i or --input option'; exit 1; fi
-if [ -z "$ROUTE" ]; then echo 'error: route not requested; use -r or --route option'; exit 1; fi
+if [ -z "$ROUTE" ]; then 
+	echo 'error: route not requested; use -r or --route option'
+	exit 1
+else
+	ROUTE=$(echo $ROUTE | tr -d '"' | tr -d "\'")
+fi
 
 # default title
 if [ -z "$INPUT_TITLE" ]; then INPUT_TITLE="${FILE/.$TYPE/}"; COM=$INPUT_TITLE.com; fi
@@ -46,7 +50,7 @@ else
 fi
 
 # defaults
-if [ -z "$NPROC" ]; then NPROC=16; fi
+if [ -z "$NPROC" ]; then NPROC=14; fi
 if [ -z "$MEM" ]; then MEM=8; fi
 if [ -z "$CHARGE" ]; then CHARGE=0; fi
 if [ -z "$MULT" ]; then MULT=1; fi
@@ -70,7 +74,7 @@ echo "$CHARGE $MULT" >> "$COM"
 obabel -i $TYPE $INPUT -o com 2>/dev/null | sed -e '1,5d' >> "$COM"
 
 # move file to location 
-if [[ ! "$LOCATION" == "." ]]; then mv "$COM" "$LOCATION"; fi
+if [[ ! "$LOCATION" -ef . ]]; then mv "$COM" "$LOCATION"; fi
 
 # make sbatch
 if [[ $SBATCH -eq 1 ]]; then cd $LOCATION && make-sbatch.sh -i=$COM -n=$NRPOC

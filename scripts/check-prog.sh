@@ -3,7 +3,10 @@
 # script for checking progress of workflow batch
 # run in workflow directory to get progress report
 
-total_unique=$(ls -f unopt_pdbs/*_0.pdb | wc -l)
+source_config
+cd $MAIN_DIR
+
+total_unique=$(for file in $UNOPT_PDBS/*.pdb; do echo $file | sed 's|_[0-9].pdb||'; done | uniq | wc -l)
 total_pdbs=$(ls -f unopt_pdbs/*.pdb | wc -l)
 directory_name=$(basename `pwd`)
 
@@ -21,8 +24,12 @@ printf "$header_dimension" '' "completed" "incomplete" "running" "resubmissions"
 
 function percentage {
 	NUMER=$1; DENOM=$2
-	result=$(echo "$NUMER $DENOM" | awk '{printf "%0.1f\n", 100 * ($1 / $2)}')
-	echo $result
+	if [[ "$DENOM" -ne 0 ]]; then
+		result=$(echo "$NUMER $DENOM" | awk '{printf "%0.1f\n", 100 * ($1 / $2)}')
+		echo $result
+	else
+		echo "0.0"
+	fi
 }
 
 function get_prog {

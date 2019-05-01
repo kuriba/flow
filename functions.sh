@@ -11,7 +11,6 @@ function source_config {
     local main_dir=$(upsearch flow-tools)
     cd $main_dir
 	. "flow-tools/config.sh"
-    wait
     cd $cur_dir
 }
 
@@ -24,6 +23,22 @@ function copy_opt_pdbs {
 function move_freq_to_temp {
 	mkdir temp
 	for file in *freq.log; do mv "${file/_freq.log/}"* temp; done
+}
+
+function resub_all_freqs {
+	source_config
+	move_freq_to_temp
+	for file in *.log; do
+		setup_freq $file
+	done
+	mv temp/* . && rmdir temp
+}
+
+function transfer_all_logs {
+	source_config
+	for d in "$S0_VAC" "$S0_SOLV" "$S1_SOLV" "$T1_SOLV" "$CAT_RAD_VAC" "$CAT_RAD_SOLV" "$SP_TDDDFT"; do
+		cp $d/completed/*.log $ALL_LOGS
+	done
 }
 
 function gen_slurm_report {
@@ -47,6 +62,8 @@ function email_sbatch {
 	sed "s/JOBID/$jobid/g" $FLOW_TOOLS/templates/email.sbatch | sed "s/EMAIL/$DEFAULT_EMAIL/g" | sed "s/JOBNAME/$title/g" | sed "s/PARTITION/$DEFAULT_PARTITION/g" | sbatch 1>/dev/null
 }
 
+# function which submits all 
+
 # function which submits an array of input files
 # use: submit-array <array_title> <inp_file_list> <inp_file_type> <partition> <sbatch_file>
 # effect: submits an array of jobs
@@ -69,11 +86,9 @@ function submit_array {
 	# substitute ARRAY_TITLE with name of super-directory and TOTAL with the number of files
 	# in the array then submit sbatch
 	local jobid=$(sed "s/JOBNAME/$array_title/g" $sbatch_file | sed "s/TOTAL/$numfiles/g" | sed "s/TIME/$calc_time/" | sbatch)
-	wait
 
 	# submit separate sbatch for array email
 	email_sbatch $array_title $jobid
-	wait
 
 	echo $jobid
 }
@@ -158,14 +173,48 @@ function upsearch {
 	cd $cur_dir
 }
 
+# sets up the given .com file for restart using the given sbatch file
+# use: restart_opt <title> <sbatch file>
+# effect: modifies the input file using restart-opt.sh then creates an sbatch file and submits it
+function restart_opt {
+	local title=$1
+	local sbatch_file=$2
+	local input_file=$title.com
+    python $FLOW_TOOLS/scripts/restart-g16.py $input_file
+    setup_sbatch $input_file $sbatch_file
+    sbatch $title.sbatch
+}
+
+# updates the workflow to use the latest code
+# use: update_flow (use anywhere in your workflow directories)
+# effect: updates files in the "flow_tools" directory
+function update_flow {
+	local cur_dir=$PWD
+	source_config
+	cd $FLOW_TOOLS
+	rsync -r --exclude=setup-flow.sh --exclude=test --exclude=begin-calcs.sh --exclude=functions.sh --exclude=README.md /home/abreha.b/flow/* .
+	cd $cur_dir
+}
+
+# extracts data from completed log files
+# use: extract_data (use anywhere in your workflow directories)
+# effect: generates .json and .xyz files in the mol-data folder of the workflow
+function extract_data {
+	local cur_dir=$PWD
+	source_config
+	cd $MAIN_DIR
+	python $FLOW_TOOLS/data-extractor.py
+	cd $cur_dir
+}
+
 # sets up the given $file for restart, intended for PM7 optimization
 # use: pm7-restart <com file>
 # effect: modifies the input file by changing the route and deleting the coordinates
 function pm7_restart {
 	local file=$1
 	local route=$(grep '#' $file)
-	sed -i '/[0-9] [0-9]/,$d' $file
-	sed -i "s/$route/#p pm7 opt=calcfc geom=allcheck/" $file
+	sed -i '/[0-9] [0-9]/,$d' $file & wait
+	sed -i "s/$route/#p pm7 opt=calcfc geom=allcheck/" $file & wait
 }
 
 # sets up sbatch script for given .com file and sbatch template
@@ -174,33 +223,35 @@ function pm7_restart {
 function setup_sbatch {
 	local input=$1
 	local sbatch_template=$2
-	local batch_file="${input/.com/.sbatch}"
 	local title="${input/.com/}"
+	local batch_file="$title.sbatch"
 
-	cp $sbatch_template $batch_file
-	sed -i "s/JOBNAME/$title/g" $batch_file
-	sed -i "s/PARTITION/$DEFAULT_PARTITION/g" $batch_file
-	sed -i "s/TIME/$DFT_TIME/g" $batch_file
-	sed -i "s/EMAIL/$DEFAULT_EMAIL/g" $batch_file
+	cp "$sbatch_template" "$batch_file" & wait
+	sed -i "s/JOBNAME/$title/" "$batch_file" & wait
+	sed -i "s/PARTITION/$DEFAULT_PARTITION/" "$batch_file" & wait
+	sed -i "s/TIME/$DFT_TIME/" "$batch_file" & wait
+	sed -i "s/EMAIL/$DEFAULT_EMAIL/" "$batch_file" & wait
 }
 
 # sets up frequency calculation from geometry from given log file
 # use: setup-freq <log file>
 # effect: creates an input and sbatch file for a frequency job and submits it
 function setup_freq {
+	source_config
 	local log_file=$1
-	local route=$(grep "#" $log_file | head -1)
+	local com_file="${log_file/.log/.com}"
+	local route=$(grep '#p' $com_file)
 	local opt_keyword=$(echo $route | awk '/opt/' RS=" ")
 	local charge=$(grep 'Charge =' $log_file | awk '{print $3}')
     local mult=$(grep 'Charge =' $log_file | awk '{print $6}')
 	local freq="${log_file/.log/_freq}"
-	local new_route=$(echo $route | sed "s|$opt_keyword|freq=noraman|")
-
-	# set up freq job
-	bash $FLOW_TOOLS/scripts/make-com.sh -f -i=$log_file -r="$new_route" -c=$charge -s=$mult -t=$freq -l="../freq_calcs/"
+	local new_route=$(echo $route | sed "s|$opt_keyword|freq=noraman|" | sed "s| geom=allcheck guess=read||")
+	
+	# setup freq job
+	bash $FLOW_TOOLS/scripts/make-com.sh -i="$log_file" -r="$new_route" -c="$charge" -s="$mult" -t="$freq" -l="../freq_calcs/"
 	cd "../freq_calcs/"
 
-	# set up sbatch
+	# setup sbatch
 	cp $FLOW_TOOLS/templates/freq_sbatch.txt $freq.sbatch
 	sed -i "s/JOBNAME/$freq/g" $freq.sbatch
 	sed -i "s/DEFAULT_EMAIL/$DEFAULT_EMAIL/" $freq.sbatch
@@ -210,7 +261,11 @@ function setup_freq {
 	cd "../completed/"
 }
 
+# moves the given log file to the all-logs folder of the workflow
+# use: to_all_logs <log file>
+# effect: copies the log file to "all-logs"
 function to_all_logs {
+	source_config
 	local log_file=$1
 	cp $log_file $ALL_LOGS
 }
@@ -220,4 +275,32 @@ function submit_all_dft_opts {
 	for d in $S0_SOLV $S1_SOLV $T1_SOLV $CAT_RAD_VAC $CAT_RAD_SOLV; do
 		cd $d && sbatch $inchi_key*sbatch;
 	done
+}
+
+# resubmits the jobs in the current directory
+# use: resubmit_array (no arguments, simply call from the workflow directory containing jobs you want to resubmit
+# effect: submits an array of jobs
+function resubmit_array {
+	source_config
+	local curr_dir=$PWD
+    if [[ "$curr_dir" == "$S0_VAC" ]]; then
+        jobid=$(submit_array "$TITLE\_S0_VAC" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_s0_dft-opt_vac.sbatch" "$DFT_TIME")
+	elif [[ "$curr_dir" == "$S0_SOLV" ]]; then
+		jobid=$(submit_array "$TITLE\_S0_SOLV" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_dft-opt.sbatch" "$DFT_TIME")
+	elif [[ "$curr_dir" == "$S1_SOLV" ]]; then
+		jobid=$(submit_array "$TITLE\_S1_SOLV" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_dft-opt.sbatch" "$DFT_TIME")
+	elif [[ "$curr_dir" == "$T1_SOLV" ]]; then
+        jobid=$(submit_array "$TITLE\_T1_SOLV" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_dft-opt.sbatch" "$DFT_TIME")
+	elif [[ "$curr_dir" == "$CAT_RAD_VAC" ]]; then
+        jobid=$(submit_array "$TITLE\_CAT-RAD_VAC" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_dft-opt.sbatch" "$DFT_TIME")
+	elif [[ "$curr_dir" == "$CAT_RAD_SOLV" ]]; then
+        jobid=$(submit_array "$TITLE\_CAT-RAD_SOLV" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_dft-opt.sbatch" "$DFT_TIME")
+	elif [[ "$curr_dir" == "$SP_TDDFT" ]]; then
+		jobid=$(submit_array "$TITLE\_SP-TDDFT" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_sp_td-dft.sbatch" "$DFT_TIME")
+	elif [[ "$curr_dir" == "$PM7" ]]; then
+		jobid=$(submit_array "$TITLE\_PM7" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_pm7.sbatch" $PM7_TIME)
+	elif [[ "$curr_dir" == "$RM1_D" ]]; then
+		jobid=$(submit_array "$TITLE\_RM1-D" "gamess_inp.txt" "inp" $FLOW_TOOLS/templates/array_gamess_rm1-d.sbatch $DFT_TIME)
+	fi
+	echo "Submitted array with job ID: $jobid"
 }

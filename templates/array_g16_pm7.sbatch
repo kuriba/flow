@@ -3,7 +3,7 @@
 #SBATCH -o %A_%a.o
 #SBATCH -e %A_%a.e	
 #SBATCH -N 1
-#SBATCH -n 16
+#SBATCH -n 14
 #SBATCH --array=1-TOTAL%50
 #SBATCH --parsable
 
@@ -34,13 +34,17 @@ function fin_handler {
 	title=$1	
 
 	# move files to completed directory
-	mv $title* $PM7/completed/ && cd $PM7/completed/
+	mv $title* $PM7/completed/
+	cd $PM7/completed/
  
 	# make pdb file of PM7 optimized structure
-	obabel -ilog $log -opdb -O $title.pdb &>/dev/null && mv $title.pdb $PM7/opt_pdbs/
+	obabel -ilog $log -opdb -O $title.pdb &>/dev/null
+	mv $title.pdb $PM7/opt_pdbs/
  
 	# make GAMESS RM1-D input
-	cd $PM7/opt_pdbs/ && bash $FLOW/scripts/pdb2inp.sh $title.pdb $FLOW_TOOLS/templates/gamess_rm1d-opt.txt && mv $title.inp $RM1_D
+	cd $PM7/opt_pdbs/
+	bash $FLOW/scripts/pdb2inp.sh $title.pdb $FLOW_TOOLS/templates/gamess_rm1d-opt.txt
+	mv $title.inp $RM1_D
 }
 
 # end of job preparation for next submissions

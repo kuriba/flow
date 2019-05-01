@@ -34,7 +34,8 @@ if [ $timeout_status -eq 124 ]; then            # if the run times out
 
 elif [ $termination -eq 1 ]; then               # if the run terminated successfully
         # move files to completed directory
-        mv $title* ../completed/ && cd ../completed/
+        mv $title* ../completed/
+		cd ../completed/
         to_all_logs $log
         setup_freq $log
         exit 0

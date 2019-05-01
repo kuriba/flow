@@ -19,10 +19,11 @@ export S1_SOLV=$(readlink -e s1_solv)
 export SP_DFT=$(readlink -e sp-dft)
 export SP_TDDFT=$(readlink -e sp-tddft)
 export T1_SOLV=$(readlink -e t1_solv)
+export T1_SP_TDDFT=$(readlink -e t1_sp-tddft)
 export UNOPT_PDBS=$(readlink -e unopt_pdbs)
 
 # useful variables
 export DEFAULT_EMAIL="$USER@husky.neu.edu"
-export DFT_TIME=1420m
+export DFT_TIME=1340m
 export PM7_TIME=140m
 export TITLE=$(basename $MAIN_DIR)

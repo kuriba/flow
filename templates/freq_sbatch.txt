@@ -2,7 +2,7 @@
 #SBATCH --job-name=JOBNAME
 #SBATCH --output=JOBNAME.o
 #SBATCH --error=JOBNAME.e
-#SBATCH -n 16
+#SBATCH -n 14
 #SBATCH -N 1
 #SBATCH --mail-user=DEFAULT_EMAIL
 #SBATCH --mail-type=END
@@ -28,7 +28,7 @@ termination=$(grep 'Normal termination' $log | wc -l)
 if [ $timeout_status -eq 124 ]; then            # if the run times out
 
         # submit restart calc
-		bash $FLOW/scripts/restart-freq.sh $title.com
+		python $FLOW_TOOLS/scripts/restart-g16.py $title.com
         sbatch $title.sbatch
 
 elif [ $termination -eq 1 ]; then               # if the run terminated successfully

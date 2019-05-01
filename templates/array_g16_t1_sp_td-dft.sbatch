@@ -4,7 +4,7 @@
 #SBATCH -e %A_%a.e				
 #SBATCH -N 1			
 #SBATCH -n 14               			
-#SBATCH --array=1-TOTAL%30 			
+#SBATCH --array=1-TOTAL%50 			
 #SBATCH --parsable
 
 # source config and function files
@@ -20,8 +20,7 @@ title="${input_file/.com/}"
 log=$title.log
 
 # execute job
-timeout TIME time g16 $input_file
-timeout_status=$?
+time g16 $input_file
 
 # rename .o and .e files
 rename_slurm_outputs $SLURM_ARRAY_TASK_ID $title
@@ -30,26 +29,14 @@ rename_slurm_outputs $SLURM_ARRAY_TASK_ID $title
 termination=$(grep 'Normal termination' $log | wc -l)
 
 # end of job preparation for next submissions
-if [ $timeout_status -eq 124 ]; then		# if the run times out
-
-	# move files to timeouts directory 
-	mv $title* resubmits/
-	cd resubmits/
-	
-	# submit restart calc
-	restart_opt $title $FLOW_TOOLS/templates/dft-opt_g16_sbatch_re.txt
-		
-elif [ $termination -eq 1 ]; then		# if the run terminated successfully
+if [ $termination -eq 1 ]; then		# if the run terminated successfully
 
 	# move files to completed directory
-	mv $title* completed/
-	cd completed/
-	to_all_logs $log
-	setup_freq $log
+	mv $title* $T1_SP_TDDFT/completed/
+	cd $T1_SP_TDDFT/completed/ && to_all_logs $log
 	exit 0
-
-else
+else	
 	# move files to failed directory
-	mv $title* failed_opt/
+	mv $title* $T1_SP_TDDFT/failed/
 	exit 1
 fi

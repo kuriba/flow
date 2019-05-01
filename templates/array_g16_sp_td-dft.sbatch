@@ -3,7 +3,7 @@
 #SBATCH -o %A_%a.o				
 #SBATCH -e %A_%a.e				
 #SBATCH -N 1			
-#SBATCH -n 16               			
+#SBATCH -n 14               			
 #SBATCH --array=1-TOTAL%50 			
 #SBATCH --parsable
 
@@ -33,7 +33,7 @@ if [ $termination -eq 1 ]; then		# if the run terminated successfully
 
 	# move files to completed directory
 	mv $title* $SP_TDDFT/completed/
-	cd $SP_TDDFT/completed/ && to-all-logs $log
+	cd $SP_TDDFT/completed/ && to_all_logs $log
 	exit 0
 else	
 	# move files to failed directory

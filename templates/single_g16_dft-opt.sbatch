@@ -29,9 +29,7 @@ termination=$(grep 'Normal termination' $log | wc -l)
 if [ $timeout_status -eq 124 ]; then		# if the run times out
 
 	# submit restart calc
-	bash $FLOW_TOOLS/scripts/restart-opt.sh $input_file
-	setup_sbatch $input_file $FLOW_TOOLS/templates/dft-opt_g16_sbatch_re.txt
-	sbatch $title.sbatch
+	bash $FLOW_TOOLS/scripts/restart_opt $title $FLOW_TOOLS/templates/dft-opt_g16_sbatch_re.txt
 		
 elif [ $termination -eq 1 ]; then		# if the run terminated successfully
 

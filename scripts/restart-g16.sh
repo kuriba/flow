@@ -12,6 +12,9 @@ com_file=$1
 name="${com_file/.com/}"
 log_file=$name.log
 
+has_opt=$(grep -c "#*opt" $com_file)
+has_freq=$(grep -c "#*opt" $com_file)
+
 # make sure log file is in the same directory
 ls $log_file &>/dev/null
 if ! [ $? -eq 0 ] ; then
