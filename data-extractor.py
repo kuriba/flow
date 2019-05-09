@@ -121,7 +121,6 @@ def push_data(state, solv, geom, energies, json_obj, total_electronic_energy, fm
     json_obj[state][solv]["energies"]["S"] = energies[2]
     json_obj[state][solv]["energies"]["zpve"] = energies[3]
     json_obj[state][solv]["energies"]["total_electronic_energy"] = total_electronic_energy
-    json_obj[state][solv]["energies"]["total_electronic_energy_zpve"] = energies[7]
     if fmo:
         json_obj[state][solv]["energies"]["homo"] = energies[4]
         json_obj[state][solv]["energies"]["lumo"] = energies[5]
@@ -148,6 +147,7 @@ for mol in mols:
     t1_solv_freq = mol + "_T1_solv_freq.log"
     t1_solv_xyz = mol + "_T1_solv.xyz"
     sp_tddft = mol + "_sp-tddft.log"
+    t1_sp_tddft = mol + "_t1_sp-tddft.log"
 
     # get basic mol info
     mol_data = basic_info("../unopt_pdbs/" + mol + "_0.pdb")
@@ -175,7 +175,7 @@ for mol in mols:
     # vertical excitation energy (T1)
     vertical_excitation_energy_t1 = ""
     try:
-        with open(t1_solv_opt, "r") as file:
+        with open(t1_sp_tddft, "r") as file:
             for line in file:
                 line = line.strip()
                 if line.startswith("Excited State   1:"):
@@ -234,7 +234,6 @@ for mol in mols:
 
 
     # 0-0 transition energy
-    vertical_excitation_energy_t1 = 951.64
     if (vertical_excitation_energy_t1 != "") and (s0_solv_energies[6] != "") and (t1_solv_energies[6] != ""):
         delZPVE_eV = 27.211 * (float(s0_solv_energies[6]) - float(t1_solv_energies[6]))
         c = 2.998 * pow(10, 8)
@@ -255,10 +254,9 @@ for mol in mols:
         ip = ""
 
     # redox potential
-    if "" not in (
-            ip, s0_vac_energies[2], cat_rad_vac_energies[2], s0_solv_energies[0], s0_vac_energies[0],
-            cat_rad_solv_energies[0],
-            cat_rad_vac_energies[0]):
+    # requires 
+    if "" not in (ip, s0_vac_energies[2], cat_rad_vac_energies[2], s0_solv_energies[0], 
+                  s0_vac_energies[0], cat_rad_solv_energies[0], cat_rad_vac_energies[0]):
         # delta_S
         s0_S = float(s0_vac_energies[2]) / 1000
         cat_rad_S = float(cat_rad_vac_energies[2]) / 1000

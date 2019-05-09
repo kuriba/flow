@@ -270,6 +270,14 @@ function to_all_logs {
 	cp $log_file $ALL_LOGS
 }
 
+
+function cp_all_logs {
+	source_config
+	for d in $CAT_RAD_VAC $CAT_RAD_SOLV $PM7 $RM1_D $S0_VAC $S0_SOLV $S1_SOLV $SP_TDDFT $SP_DFT $T1_SOLV $T1_SP_DDFT; do
+		cp $d/completed/*.log $ALL_LOGS;
+	done
+}
+
 function submit_all_dft_opts {
 	local inchi_key=$1
 	for d in $S0_SOLV $S1_SOLV $T1_SOLV $CAT_RAD_VAC $CAT_RAD_SOLV; do

@@ -9,7 +9,7 @@
     "rp": null,
     "0-0_S1": null,
     "0-0_T1": null,
-    "ve": null
+    "vee": null
   },
   "s0": {
     "solv": {
@@ -45,9 +45,7 @@
         "G": null,
         "H": null,
         "S": null,
-        "zpve": null,
-        "homo": null,
-        "lumo": null
+        "zpve": null
       }
     }
   },
@@ -59,9 +57,7 @@
         "G": null,
         "H": null,
         "S": null,
-        "zpve": null,
-        "homo": null,
-        "lumo": null
+        "zpve": null
       }
     }
   },
@@ -73,9 +69,7 @@
         "G": null,
         "H": null,
         "S": null,
-        "zpve": null,
-        "homo": null,
-        "lumo": null
+        "zpve": null
       }
     },
     "vac": {
@@ -85,9 +79,7 @@
         "G": null,
         "H": null,
         "S": null,
-        "zpve": null,
-        "homo": null,
-        "lumo": null
+        "zpve": null
       }
     }
   }
