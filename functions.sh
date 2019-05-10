@@ -175,7 +175,7 @@ function upsearch {
 
 # sets up the given .com file for restart using the given sbatch file
 # use: restart_opt <title> <sbatch file>
-# effect: modifies the input file using restart-opt.sh then creates an sbatch file and submits it
+# effect: modifies the input file using restart-g16.py then creates an sbatch file and submits it
 function restart_opt {
 	local title=$1
 	local sbatch_file=$2
