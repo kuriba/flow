@@ -122,9 +122,15 @@ def clear_gau_files(log_file):
             if line.startswith("Entering Link 1"):
                 PID = line.split(" ")[-1].replace(".", "")
                 INP_ID = str(int(PID) - 1)
-    for f in glob.glob("Gau-{}*".format(PID)):
-        os.remove(f)
-    os.remove("Gau-{}.inp".format(INP_ID))
+    try:
+        for f in glob.glob("Gau-{}*".format(PID)):
+            os.remove(f)
+    except:
+        pass
+    try:
+        os.remove("Gau-{}.inp".format(INP_ID))
+    except:
+        pass
 
 
 
