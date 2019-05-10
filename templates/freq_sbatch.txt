@@ -4,7 +4,7 @@
 #SBATCH --error=JOBNAME.e
 #SBATCH -n 14
 #SBATCH -N 1
-#SBATCH --mail-user=DEFAULT_EMAIL
+#SBATCH --mail-user=EMAIL
 #SBATCH --mail-type=END
 #SBATCH --parsable
 

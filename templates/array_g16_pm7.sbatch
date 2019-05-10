@@ -43,7 +43,7 @@ function fin_handler {
  
 	# make GAMESS RM1-D input
 	cd $PM7/opt_pdbs/
-	bash $FLOW/scripts/pdb2inp.sh $title.pdb $FLOW_TOOLS/templates/gamess_rm1d-opt.txt
+	bash $FLOW_TOOLS/scripts/pdb2inp.sh $title.pdb $FLOW_TOOLS/templates/gamess_rm1d-opt.txt
 	mv $title.inp $RM1_D
 }
 

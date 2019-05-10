@@ -3,7 +3,7 @@
 #SBATCH -o least-energy-extractor.o
 #SBATCH -e least-energy-extractor.e
 #SBATCH -N 1                                    
-#SBATCH -n 16 
+#SBATCH -n 14
 #SBATCH --mail-user=EMAIL
 #SBATCH --mail-type=END
 #SBATCH --parsable

@@ -254,8 +254,9 @@ function setup_freq {
 	# setup sbatch
 	cp $FLOW_TOOLS/templates/freq_sbatch.txt $freq.sbatch
 	sed -i "s/JOBNAME/$freq/g" $freq.sbatch
-	sed -i "s/DEFAULT_EMAIL/$DEFAULT_EMAIL/" $freq.sbatch
+	sed -i "s/EMAIL/$DEFAULT_EMAIL/" $freq.sbatch
 	sed -i "s/TIME/$DFT_TIME/" $freq.sbatch
+	sed -i "s/PARTITION/$DEFAULT_PARTITION/" $freq.sbatch
 	sbatch $freq.sbatch
 
 	cd "../completed/"
