@@ -180,7 +180,7 @@ function restart_opt {
 	local title=$1
 	local sbatch_file=$2
 	local input_file=$title.com
-    python $FLOW_TOOLS/scripts/restart-g16.py $input_file
+    python $FLOW/scripts/restart-g16.py $input_file
     setup_sbatch $input_file $sbatch_file
     sbatch $title.sbatch
 }

@@ -77,5 +77,5 @@ obabel -i $TYPE $INPUT -o com 2>/dev/null | sed -e '1,5d' >> "$COM"
 if [[ ! "$LOCATION" -ef . ]]; then mv "$COM" "$LOCATION"; fi
 
 # make sbatch
-if [[ $SBATCH -eq 1 ]]; then cd $LOCATION && make-sbatch.sh -i=$COM -n=$NRPOC
-elif [[ $SBATCH -eq 2 ]]; then cd $LOCATION && make-sbatch.sh -i=$COM -n=$NPROC -s; fi
+if [[ $SBATCH -eq 1 ]]; then cd $LOCATION && bash $FLOW/scripts/make-sbatch.sh -i=$COM -n=$NRPOC
+elif [[ $SBATCH -eq 2 ]]; then cd $LOCATION && bash $FLOW/scripts/make-sbatch.sh -i=$COM -n=$NPROC -s; fi

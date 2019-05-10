@@ -28,7 +28,7 @@ termination=$(grep 'Normal termination' $log | wc -l)
 if [ $timeout_status -eq 124 ]; then            # if the run times out
 
         # submit restart calc
-		python $FLOW_TOOLS/scripts/restart-g16.py $title.com
+		python $FLOW/scripts/restart-g16.py $title.com
         sbatch $title.sbatch
 
 elif [ $termination -eq 1 ]; then               # if the run terminated successfully

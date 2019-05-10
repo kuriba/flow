@@ -6,7 +6,7 @@ timeout_status=$?
 
 # resubmit if timeout
 if [ $timeout_status -eq 124 ]; then
-	python $utils/restart-g16.py JOBNAME.com
+	python $FLOW/scripts/restart-g16.py JOBNAME.com
 	sbatch JOBNAME.sbatch
 fi
 

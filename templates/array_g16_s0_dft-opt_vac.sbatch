@@ -40,7 +40,7 @@ if [ $timeout_status -eq 124 ]; then		# if the run times out
 	cd $S0_VAC/resubmits/
 
 	# submit restart calc
-	bash $FLOW_TOOLS/scripts/restart_opt $title $FLOW_TOOLS/templates/s0_dft-opt_vac_g16_sbatch_re.txt
+	bash $FLOW_TOOLS/scripts/restart_opt.py $title $FLOW_TOOLS/templates/s0_dft-opt_vac_g16_sbatch_re.txt
 		
 elif [ $termination -eq 1 ]; then		# if the run terminated successfully
 
