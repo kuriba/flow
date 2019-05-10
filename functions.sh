@@ -74,6 +74,7 @@ function submit_array {
 	local sbatch_file=$4
 	local calc_time=$5
 
+	source_config
 	# remove existing list of input files
 	rm "$inp_file_list" 2>/dev/null
 
@@ -85,7 +86,7 @@ function submit_array {
 
 	# substitute ARRAY_TITLE with name of super-directory and TOTAL with the number of files
 	# in the array then submit sbatch
-	local jobid=$(sed "s/JOBNAME/$array_title/g" $sbatch_file | sed "s/TOTAL/$numfiles/g" | sed "s/TIME/$calc_time/" | sbatch)
+	local jobid=$(sed "s/JOBNAME/$array_title/g" $sbatch_file | sed "s/SIMULTANEOUS_JOBS/$DEFAULT_SIMULTANEOUS_JOBS/" | sed "s/TOTAL/$numfiles/g" | sed "s/TIME/$calc_time/" | sbatch)
 
 	# submit separate sbatch for array email
 	email_sbatch $array_title $jobid
