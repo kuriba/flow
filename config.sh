@@ -24,6 +24,7 @@ export UNOPT_PDBS=$(readlink -e unopt_pdbs)
 
 # useful variables
 export DEFAULT_EMAIL="$USER@husky.neu.edu"
+export DEFAULT_PARTITION=$(sinfo | awk -vcol=PARTITION '(NR==1){colnum=-1;for(i=1;i<=NF;i++)if($(i)==col)colnum=i;}{print $(colnum)}' | grep '*' | uniq | sed "s|*||")
 export DFT_TIME=1340m
 export PM7_TIME=140m
 export TITLE=$(basename $MAIN_DIR)
