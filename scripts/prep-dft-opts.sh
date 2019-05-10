@@ -15,7 +15,7 @@ bash $FLOW_TOOLS/scripts/make-com.sh -i=$pdb_file -r='#p M06/6-31+G(d,p) SCRF=(S
 bash $FLOW_TOOLS/scripts/make-com.sh -i=$pdb_file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt td=root=1' -t=$inchi\_S1_solv -l=$S1_SOLV
 
 # setup T1 DFT optimization (in solvent)
-bash $FLOW_TOOLS/scripts/make-com.sh -i=$pdb_file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_T1_solv -s=3 -l=$T1_SOLV
+bash $FLOW_TOOLS/scripts/make-com.sh -i=$pdb_file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt td=(triplets, root=1)' -t=$inchi\_T1_solv -s=3 -l=$T1_SOLV
 
 # setup cation radical DFT optimization (in solvent)
 bash $FLOW_TOOLS/scripts/make-com.sh -i=$pdb_file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_cat-rad_solv -c=1 -s=2 -l=$CAT_RAD_SOLV
