@@ -3,7 +3,7 @@
 #SBATCH -o JOBNAME.o
 #SBATCH -e JOBNAME.e				
 #SBATCH -N 1	
-#SBATCH -n 16               			
+#SBATCH -n 14
 #SBATCH --mail-user=EMAIL
 #SBATCH --mail-type=END
 #SBATCH --parsable
