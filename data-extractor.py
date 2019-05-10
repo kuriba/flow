@@ -228,8 +228,6 @@ for mol in mols:
         adiabatic_energy_eV = adiabatic_energy_J * j2eV
         E00_S1 = round(adiabatic_energy_eV - delZPVE_eV,2)
     else:
-        if "DMRPUUK" in mol:
-            print("vee: {}\ns0_solv[6]: {}\ns1_solv[6]: {}".format(vertical_excitation_energy_s1, s0_solv_energies[6], s1_solv_energies[6]))
         E00_S1 = ""
 
 
