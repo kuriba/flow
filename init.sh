@@ -12,7 +12,7 @@ if [ ! -f "$bash_source" ]; then
 	exit 1
 fi
 
-utils_header='# VERDE workflow utils'
+utils_header='# VERDE Materials DB workflow utils'
 # do not modify .bashrc if already modified
 if [ $(grep -c "$utils_header" "$bash_source") -ge 1 ]; then
 	echo "VERDE workflow already initialized."
