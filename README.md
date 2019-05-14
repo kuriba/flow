@@ -1,7 +1,7 @@
 # Workflow for VERDE Materials DB
 The Virtual Excited State Reference for the Discovery of Electronic Materials Database (VERDE Materials DB) is a database of excited state geometries, energies, and properties of organic molecules with potential applications in sustainable materials including photovolatic cells and sunscreens. The calculations performed through this workflow allow one to probe the behavior and properties of photoexcited systems to streamline to the process of discovering novel, sustainable materials. The workflow for the calculations and data extraction follows four phases.
 
-**Phase 1** involves the generation of a set of unique molecules and their initial conformers. Conformers are receive an initial crude, force field optimization using UFF.
+**Phase 1** involves the generation of a set of unique molecules and their initial conformers. Conformers receive an initial force field optimization using UFF.
 
 **Phase 2** is where the lowest energy conformer is identified through semi-empirical optimizations and single-point DFT calculations.
 
