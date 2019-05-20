@@ -57,8 +57,6 @@ if [ -z "$SUBMIT" ]; then SUBMIT=0; fi
 if [ -z "$EMAIL" ]; then EMAIL=0; fi
 if [ -z "$USER" ]; then USER=$LOGNAME@husky.neu.edu; fi
 
-
-echo "PRE_HEADER"
 # create SBATCH header
 echo "#!/bin/bash" >> $SBATCH
 echo "#SBATCH --job-name=$JOBNAME" >> $SBATCH
