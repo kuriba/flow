@@ -1,4 +1,4 @@
-# Workflow for VERDE Materials DB
+# Workflow for the VERDE Materials Database
 The Virtual Excited State Reference for the Discovery of Electronic Materials Database (VERDE Materials DB) is a database of excited state geometries, energies, and properties of organic molecules with potential applications in sustainable materials including photovolatic cells and sunscreens. The calculations performed through this workflow allow one to probe the behavior and properties of photoexcited systems to streamline to the process of discovering novel, sustainable materials. The workflow for the calculations and data extraction follows four phases.
 
 **Phase 1** involves the generation of a set of unique molecules and their initial conformers. Conformers receive an initial force field optimization using UFF.
@@ -98,9 +98,9 @@ bash flow-tools/begin_calcs.sh
 ```
 
 ##### Monitoring progress
-The `check_prog.sh` script is provided for monitoring the progress of a workflow. To use it, simply go to the directory of a running, or complete workflow and execute the script.
+The `check_prog.py` script is provided for monitoring the progress of a workflow. To use it, simply go to the directory of a running or completed workflow and execute the script.
 ```console
-bash $FLOW/utils/check_prog.sh
+python $FLOW/utils/check_prog.py
 ```
 This will output a small report of the overall progress of the calculations.
 
