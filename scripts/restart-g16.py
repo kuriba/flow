@@ -2,6 +2,7 @@ import os
 import sys
 import glob
 import re
+import numpy as np
 
 cwd = os.getcwd()
 files = [file for file in sys.argv[1:] if file.endswith(".com")]
@@ -25,13 +26,14 @@ def get_route(com_file):
 
 # returns the options of the opt keyword
 def get_opt_options(route):
-    opt_keyword = [i for i in route.split(" ") if i.startswith("opt")][0]
+    opt_keyword = get_opt_keyword(route)
     try:
         opt_options = opt_keyword.split("=")[1].replace(")", "").replace("(", "").split(",")
         return opt_options
     except:
         return []
 
+# returns the opt keyword
 def get_opt_keyword(route):
     opt_keyword = [i for i in route.split(" ") if i.startswith("opt")][0]
     return opt_keyword
@@ -41,6 +43,25 @@ def get_count(file, search_string):
     text = open(file, "r").read()
     count = text.count(search_string)
     return count
+
+# returns a list of SCF energies from the given opt log file
+def get_SCF_energies(log_file):
+    energies = []
+    with open(log_file, "r") as f:
+        for line in f:
+            line = line.strip()
+            if line.startswith("SCF Done:"):
+                energies.append(float(line.split("=")[1].split('A.U.')[0].strip()))
+    return energies
+
+# determines if the given log file is oscillating 
+def is_opt_oscillating(log_file):
+    energy_diffs = np.diff(get_SCF_energies(log_file))
+    energy_stdev = np.std(energy_diffs)
+    if energy_stdev >= 0.001:
+        return True
+    else:
+        return False
 
 # determines if the given job needs to be restarted
 def needs_restart(com_file, log_file):
@@ -79,7 +100,7 @@ def remove_coord_charge_mult(com_file):
                 file.write(line)
 
 # sets up an optimization to be restarted
-def restart_opt(com_file, additional_opt_options=[]):
+def restart_opt(com_file, log_file, additional_opt_options=[]):
     route = get_route(com_file)
     opt_keyword = get_opt_keyword(route)
     opt_options = get_opt_options(route)
@@ -87,6 +108,13 @@ def restart_opt(com_file, additional_opt_options=[]):
     for option in additional_opt_options:
         if option not in opt_options:
             opt_options.append(option)
+
+    if is_opt_oscillating(log_file):
+        if "calcfc" not in opt_options:
+            opt_options.append("calcfc")
+        if "maxstep=15" not in opt_options:
+            opt_options.append("maxstep=15")
+
     if "opt=" in route and "geom=allcheck" in route and "guess=read" in route:
         return
     else:
@@ -144,13 +172,13 @@ for com_file in com_files:
             if normal_t_count == 1:
                 restart_freq(com_file)
             elif normal_t_count == 0:
-                restart_opt(com_file)
+                restart_opt(com_file, log_file)
         elif "opt" in route:
-            restart_opt(com_file)
+            restart_opt(com_file, log_file)
         elif "freq" in route:
             restart_freq(com_file)
             clear_gau_files(log_file)
     elif convergence_fail(log_file):
-        restart_opt(com_file, additional_opt_options=["calcfc"])
+        restart_opt(com_file, log_file, additional_opt_options=["calcfc"])
         clear_gau_files(log_file)
 
