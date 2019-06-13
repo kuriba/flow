@@ -109,13 +109,14 @@ def restart_opt(com_file, log_file, additional_opt_options=[]):
         if option not in opt_options:
             opt_options.append(option)
 
-    if is_opt_oscillating(log_file):
+    oscillating = is_opt_oscillating(log_file)
+    if oscillating:
         if "calcfc" not in opt_options:
             opt_options.append("calcfc")
         if "maxstep=15" not in opt_options:
             opt_options.append("maxstep=15")
 
-    if "opt=" in route and "geom=allcheck" in route and "guess=read" in route:
+    if not oscillating and "opt=" in route and "geom=allcheck" in route and "guess=read" in route:
         return
     else:
         remove_coord_charge_mult(com_file)
