@@ -23,7 +23,8 @@ else
 fi
 
 # modify rungms
-gamess_source=$(whereis rungms | awk '{print $NF}')
+rungms_path=$(whereis rungms | awk '{print $NF}')
+gamess_source=$(dirname $rungms_path)
 
 if [ ! -d "$scratch_dir/gamess_scratch/scr" ]; then
 	mkdir -p $scratch_dir/gamess_scratch/scr
