@@ -18,7 +18,7 @@ elif [ $(grep -c "$utils_header" "$bashrc_source") -ge 1 ]; then
 	echo ".bashrc already modified."
 else
 	FLOW=$(pwd)
-	echo -e "$utils_header\nSCRATCH=$scratch_dir\nexport FLOW=$FLOW\nset -a; source $FLOW/functions.sh; set +a\n" >> "$bashrc_source"
+	echo -e "$utils_header\nexport SCRATCH=$scratch_dir\nexport FLOW=$FLOW\nset -a; source $FLOW/functions.sh; set +a\n" >> "$bashrc_source"
 	echo "Successfully initialized VERDE workflow variables."
 fi
 
