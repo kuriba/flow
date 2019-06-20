@@ -112,11 +112,11 @@ bash $FLOW/utils/resubmit_dft_opts.sh
 
 ## Acknowledgements
 
-   Prof. Steven A. Lopez
-   Dr. Jordan Cox
-   Fatemah Mukadum
-   Patrick Neal
-
+   Prof. Steven A. Lopez  
+   Dr. Jordan Cox  
+   Fatemah Mukadum  
+   Patrick Neal  
+ 
 ---
 #### External links
    [Lopez Lab website](https://web.northeastern.edu/lopezlab)   
