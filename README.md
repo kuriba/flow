@@ -104,12 +104,18 @@ python $FLOW/utils/check_prog.py
 ```
 This will output a small report of the overall progress of the calculations.
 
+##### Handling abruptly stopped optimizations
+If an array of DFT optimizations is stopped abruptly for some reason (e.g. node failure), the incomplete portion of the array can be resubmited using the `resubmit_dft_opts.sh` script included in the utils folder. The script automatically determines which jobs need to be resubmitted and creates the input files and submits them as an array. To use this script, simply enter the folder of the DFT calculation which was abruptly stopped (e.g. t1_solv, s1_solv, s0_solv) and execute the script.
+```console
+bash $FLOW/utils/resubmit_dft_opts.sh
+```
+
 ## Acknowledgements
 
-   Prof. Steven A. Lopez   
-   Fatemah Mukadum   
-   Jordan Cox   
-   Patrick Neal   
+   Prof. Steven A. Lopez
+   Dr. Jordan Cox
+   Fatemah Mukadum
+   Patrick Neal
 
 ---
 #### External links
