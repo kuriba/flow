@@ -11,7 +11,7 @@ else
 fi
 
 # completed molecules for current DFT directory
-completed_opts=$(ls completed | egrep '.+(vac.log)|(solv.log)')
+completed_opts=$(ls completed resubmits | egrep '.+(vac.log)|(solv.log)')
 completed_inchis=$(for opt in $completed_opts; do echo $opt | cut -d'_' -f 1; done)
 
 # completed s0_vac molecules
