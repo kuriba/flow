@@ -28,9 +28,10 @@ rename_slurm_outputs $SLURM_ARRAY_TASK_ID $title
 
 # termination status (opt successful if termination=1, opt & freq successful if termination=2)
 termination=$(grep 'Normal termination' $log | wc -l)
+convergence_fail=$(grep 'Convergence failure' $log | wc -l)
 
 # end of job preparation for next submissions
-if [ $timeout_status -eq 124 ]; then		# if the run times out
+if [ $timeout_status -eq 124 ] || [ $convergence_fail -eq 1 ]; then		# if the run times out or encounters a convergence failure
 
 	# move files to timeouts directory 
 	mv $title* resubmits/
