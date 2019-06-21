@@ -39,23 +39,26 @@ if not parent_mol:
 
 # reaction SMILES for linkers
 linker_rxns = {'unsubstituted': '[#6:1]([U])>>[*:1]([H])',
-               'benzene': '[#6:1]([U])>>[#6:1](c2ccc([Y])cc2)',
-               'acetylene': '[#6:1]([U])>>[#6:1](C#C[Y])',
-               'tetrazine': '[#6:1]([U])>>[#6:1](c2nnc([Y])nn2)',
-               'imine': '[#6:1]([U])>>[#6:1](C=N[Y])',
-               'pyrrole': '[#6:1]([U])>>[#6:1](c2ccc([Y])N2)',
-               'pyrrole(N-methyl)': '[#6:1]([U])>>[#6:1](c2ccc([Y])N(C)2)',
-               'pyrrole(N-COH)': '[#6:1]([U])>>[#6:1](c2ccc([Y])N(C=O)2)',
-               'pyridine': '[#6:1]([U])>>[#6:1](c2ncc([Y])cc2)',
-               'ethylene(trans)': '[#6:1]([U])>>[#6:1]/C=C/[Y]',
-               'thiophene(dioxide)': '[#6:1]([U])>>[#6:1](c2ccc([Y])S(=O)(=O)2)',
-               'thiophene': '[#6:1]([U])>>[#6:1]c2ccc([Y])S2',
-               'furan': '[#6:1]([U])>>[#6:1]c2ccc([Y])O2',
-               'vinyl ether': '[#6:1]([U])>>[#6:1]/C=C\[O]/C=C\[Y]',
-               'pyrimidine': '[#6:1]([U])>>[#6:1](c2ncc([Y])cn2)',
-               'cyclopentadiene': '[#6:1]([U])>>[#6:1]C2=CC=C([Y])C2',
-               'imidazole': '[#6:1]([U])>>[#6:1](c1cnc([Y])N1)',
-               'thiazole': '[#6:1]([U])>>[#6:1](c2sc([Y])cn2)'}
+               'benzene':'[#6:1]([U])>>[#6:1](c2ccc([Y])cc2)', 
+               'pyridine':'[#6:1]([U])>>[#6:1](c2ncc([Y])cc2)',
+               'pyrimidine':'[#6:1]([U])>>[#6:1](c2ncc([Y])cn2)',
+               'tetrazine':'[#6:1]([U])>>[#6:1](c2nnc([Y])nn2)', 
+               'cyclopentadiene':'[#6:1]([U])>>[#6:1]C2=CC=C([Y])C2',
+               '2,5-pyrrole':'[#6:1]([U])>>[#6:1](c2ccc([Y])N2)',
+               '3,5-pyrrole':'[#6:1]([U])>>[#6:1](c2cc([Y])cN2)',
+               'pyrrole(N-methyl)':'[#6:1]([U])>>[#6:1](c2ccc([Y])N(C)2)',
+               'pyrrole(N-COH)':'[#6:1]([U])>>[#6:1](c2ccc([Y])N(C=O)2)',
+               'imidazole':'[#6:1]([U])>>[#6:1](c1cnc([Y])N1)',
+               'furan':'[#6:1]([U])>>[#6:1]c2ccc([Y])O2',
+               'thiophene':'[#6:1]([U])>>[#6:1]c2ccc([Y])S2',
+               'thiophenedioxide':'[#6:1]([U])>>[#6:1](c2ccc([Y])S(=O)(=O)2)',
+               '2,5-thiazole':'[#6:1]([U])>>[#6:1](c2sc([Y])cn2)',
+               '2,4-thiazole':'[#6:1]([U])>>[#6:1](c2scc([Y])n2)',
+               '2,5-oxazole':'[#6:1]([U])>>[#6:1](c2oc([Y])cn2)',
+               '2,4-oxazole':'[#6:1]([U])>>[#6:1](c2occ([Y])n2)',
+               'acetylene':'[#6:1]([U])>>[#6:1](C#C[Y])', 
+               'trans-ethylene':'[#6:1]([U])>>[#6:1]/C=C/[Y]',
+               'imine':'[#6:1]([U])>>[#6:1](C=N[Y])'}
 
 # placeholder for linker addition
 linker_place_holder = '[#6:1]([U])'
@@ -76,14 +79,16 @@ for linker in linker_rxns:
 
 # reaction SMILES for terminal groups
 terminal_rxns = {'hydrogen': '[*:1]([Y])>>[*:1]([H])',
-                 'hydroxy': '[*:1]([Y])>>[*:1]([OH])',
-                 'trifluoromethyl': '[*:1]([Y])>>[*:1][C](F)(F)F',
-                 'methyl': '[*:1]([Y])>>[*:1][C]',
-                 'nitro': '[*:1]([Y])>>[*:1][N+]([O-])=O',
-                 'thiol': '[*:1]([Y])>>[*:1]([SH])',
-                 'fluoro': '[*:1]([Y])>>[*:1][F]',
-                 'chloro': '[*:1]([Y])>>[*:1][Cl]',
-                 'cyano': '[*:1]([Y])>>[*:1]C#N'}
+                 'hydroxy':'[*:1]([Y])>>[*:1]([OH])',
+                 'methoxy':'[*:1]([Y])>>[*:1]([OC])',
+                 'trifluoromethoxy':'[*:1]([Y])>>[*:1][O][C](F)(F)F',
+                 'trifluoromethyl':'[*:1]([Y])>>[*:1][C](F)(F)F',
+                 'methyl':'[*:1]([Y])>>[*:1][C]',
+                 'nitro':'[*:1]([Y])>>[*:1][N+]([O-])=O',
+                 'thiol':'[*:1]([Y])>>[*:1]([SH])',
+                 'fluoro':'[*:1]([Y])>>[*:1][F]',
+                 'chloro':'[*:1]([Y])>>[*:1][Cl]',
+                 'cyano':'[*:1]([Y])>>[*:1]C#N'}
 
 substituent_place_holder = '[*:1]([Y])'
 substituent_place_holder_mol = Chem.MolFromSmarts(substituent_place_holder)
