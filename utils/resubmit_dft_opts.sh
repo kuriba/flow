@@ -2,6 +2,13 @@
 
 # Script for automatically resubmitting optimization array which has been abruptly stopped
 source_config
+
+for i in "$@"; do
+    case $i in
+        -n|--nosubmit) NOSUBMIT=1 ;;
+    esac
+done
+
 curr_dir=$PWD
 if [[ "$curr_dir" =~ ^($S0_SOLV|$S1_SOLV|$T1_SOLV|$CAT_RAD_VAC|$CAT_RAD_SOLV)$ ]]; then
 	structure_source=$S0_VAC/opt_pdbs
@@ -56,4 +63,8 @@ for pdb in $pdbs; do
 	create_input_file $pdb
 done
 
-resubmit_array
+if [ -z "$NOSUBMIT" ]; then
+	resubmit_array
+else
+	exit 0
+fi
