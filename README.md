@@ -35,11 +35,11 @@ This workflow is designed to run on HPCs using the SLURM workload manager.
 ### Prerequisites
 The cluster must provide access to [Gaussian 16](https://gaussian.com/gaussian16/) and [GAMESS](https://www.msg.chem.iastate.edu/GAMESS/) version 2018-R1 or later. 
 #### Molecule generation
-Running the `mol_gen.py` script requires several python packages which may not be offered or easily installable on many HPCs. The `rdkit.yaml` file in the `misc` folder lists the required packages. The file can be used to install the required packages with Anaconda. If you haven't already, download [Anaconda](https://www.anaconda.com/distribution/) or later with Python 3.7. Once installed, open Anaconda Prompt, go to the directory containing the `rdkit.yaml` file and create a new conda environment.
+Running the `mol_gen.py` script requires several python packages which may not be offered or easily installable on many HPCs, thus it is likely easier to generate your molecules locally then upload the conformers to the HPC. The `rdkit.yaml` file in the `misc` folder lists the required packages for the `mol_gen.py` script. The file can be used to install the required packages with Anaconda. If you haven't already, download [Anaconda](https://www.anaconda.com/distribution/) with Python 3.7. Once installed, open Anaconda Prompt, go to the directory containing the `rdkit.yaml` file and create a new conda environment.
 ```console
 conda env create --file rdkit.yaml --name rdkit_env
 ```
-Then activate the environment.
+When the packages have finished downloading and installing, activate the environment.
 ```console
 conda activate rdkit_env
 ```
