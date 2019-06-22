@@ -13,7 +13,7 @@ The Virtual Excited State Reference for the Discovery of Electronic Materials Da
 
 #### Methodology
 ##### Combinatorial molecule generation
-Once a core has been selected, it is substituted at various, user-specified positions with a set of 17 conjugated spacer groups. The new molecules then undergo substitution at pre-determined terminal positions with a set of 9 terminal groups. Below is an example.
+Once a core has been selected, it is substituted at various, user-specified positions with a set of 20 conjugated spacer groups. The new molecules then undergo substitution at pre-determined terminal positions with a set of 11 terminal groups. Below is an example.
 
 ![alt text](misc/spacers_and_terminals.png)
 
