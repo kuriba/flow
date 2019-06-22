@@ -80,7 +80,7 @@ for linker in linker_rxns:
 # reaction SMILES for terminal groups
 terminal_rxns = {'hydrogen': '[*:1]([Y])>>[*:1]([H])',
                  'hydroxy':'[*:1]([Y])>>[*:1]([OH])',
-                 'methoxy':'[*:1]([Y])>>[*:1]([OC])',
+                 'methoxy':'[*:1]([Y])>>[*:1](OC)',
                  'trifluoromethoxy':'[*:1]([Y])>>[*:1][O][C](F)(F)F',
                  'trifluoromethyl':'[*:1]([Y])>>[*:1][C](F)(F)F',
                  'methyl':'[*:1]([Y])>>[*:1][C]',
