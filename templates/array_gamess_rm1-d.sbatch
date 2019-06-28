@@ -20,8 +20,8 @@ title="${input_file/.inp/}"
 out=$title.o
 
 # remove existing scratch files
-rm $scratch/gamess_scratch/$title*
-rm $scratch/gamess_scratch/scr/$title*
+rm $SCRATCH/gamess_scratch/$title*
+rm $SCRATCH/gamess_scratch/scr/$title*
 
 # execute job
 time $FLOW/utils/rungms $input_file
@@ -37,7 +37,7 @@ if [ $termination -eq 1 ]; then		# if the run terminated successfully
 
 	# move files to completed directory and discard scratch files
 	mv $title* $RM1_D/completed/
-	rm $scratch/gamess_scratch/scr/$title*
+	rm $SCRATCH/gamess_scratch/scr/$title*
 	
 	# make pdb file of RM1-D optimized structure
 	cd $RM1_D/completed/
@@ -51,7 +51,7 @@ if [ $termination -eq 1 ]; then		# if the run terminated successfully
 else
 	# move files to failed directory
 	mv $title* $RM1_D/failed/
-	rm $scratch/gamess_scratch/$title*
-	rm $scratch/gamess_scratch/scr/$title*
+	rm $SCRATCH/gamess_scratch/$title*
+	rm $SCRATCH/gamess_scratch/scr/$title*
 	exit 1
 fi
