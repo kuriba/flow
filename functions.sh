@@ -187,13 +187,13 @@ function restart_opt {
 }
 
 # updates the workflow to use the latest code
-# use: update_flow (use anywhere in your workflow directories)
+# use: update_existing_flow (use anywhere in your workflow directories)
 # effect: updates files in the "flow_tools" directory
-function update_flow {
+function update_existing_flow {
 	local cur_dir=$PWD
 	source_config
 	cd $FLOW_TOOLS
-	rsync -r --exclude=setup-flow.sh --exclude=test --exclude=begin-calcs.sh --exclude=functions.sh --exclude=README.md /home/abreha.b/flow/* .
+	rsync -r --exclude=setup-flow.sh --exclude=test --exclude=functions.sh --exclude=README.md $FLOW/* .
 	cd $cur_dir
 }
 
