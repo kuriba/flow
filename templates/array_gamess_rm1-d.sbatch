@@ -23,14 +23,22 @@ out=$title.o
 rm $SCRATCH/gamess_scratch/$title*
 rm $SCRATCH/gamess_scratch/scr/$title*
 
-# execute job
-time $FLOW/utils/rungms $input_file
 
-# rename .o and .e files
-rename_slurm_outputs $SLURM_ARRAY_TASK_ID $title
+# check if job is already complete
+completed=$(already_done $out)
 
-# termination status (successful if termination=1)
-termination=$(grep 'TERMINATED NORMALLY' $out | wc -l)
+# run job if incomplete
+if [[ $completed -eq 0 ]]; then
+    # execute job
+	time $FLOW/utils/rungms $input_file
+
+    # rename .o and .e files
+    rename_slurm_outputs $SLURM_ARRAY_TASK_ID $title
+	
+	termination=$(grep 'TERMINATED NORMALLY' $out | wc -l)
+else
+	termination=1
+fi
 
 # end of job preparation for next submissions
 if [ $termination -eq 1 ]; then		# if the run terminated successfully

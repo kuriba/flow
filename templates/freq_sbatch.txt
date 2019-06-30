@@ -17,12 +17,21 @@ gen_slurm_report
 title='JOBNAME'
 log=$title.log
 
-# execute job
-timeout TIME time g16 $title.com
-timeout_status=$?
+# check if job is already complete
+completed=$(already_done $log)
 
-# termination status (opt successful if termination=1, opt & freq successful if termination=2)
-termination=$(grep 'Normal termination' $log | wc -l)
+# run job if incomplete
+if [[ $completed -eq 0 ]]; then
+    # execute job
+    timeout TIME time g16 $title.com
+    timeout_status=$?
+
+	# termination status (opt successful if termination=1, opt & freq successful if termination=2)
+	termination=$(grep 'Normal termination' $log | wc -l)
+else
+	termination=1
+    timeout_status=0
+fi
 
 # end of job handling
 if [ $timeout_status -eq 124 ]; then            # if the run times out

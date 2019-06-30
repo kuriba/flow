@@ -234,6 +234,12 @@ function setup_sbatch {
 	sed -i "s/EMAIL/$DEFAULT_EMAIL/" "$batch_file" & wait
 }
 
+# determines if the job with the given title is already done
+function already_done {
+	local output_file_name=$1
+	echo $(ls completed/$output_file_name 2>/dev/null | wc -l)
+}
+
 # sets up frequency calculation from geometry from given log file
 # use: setup-freq <log file>
 # effect: creates an input and sbatch file for a frequency job and submits it

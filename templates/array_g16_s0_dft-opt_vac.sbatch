@@ -22,15 +22,26 @@ title="${input_file/.com/}"
 inchi_key="${input_file/_S0_vac.com/}"
 log=$title.log
 
-# execute job
-timeout TIME time g16 $input_file
-timeout_status=$?
+# check if job is already complete
+completed=$(already_done $log)
 
-# rename .o and .e files
-rename_slurm_outputs $SLURM_ARRAY_TASK_ID $title
+# run job if incomplete
+if [[ $completed -eq 0 ]]; then
+    # execute job
+    timeout TIME time g16 $input_file
+    timeout_status=$?
 
-# termination status (opt successful if termination=1)
-termination=$(grep 'Normal termination' $log | wc -l)
+    # rename .o and .e files
+    rename_slurm_outputs $SLURM_ARRAY_TASK_ID $title
+
+    # termination status (opt successful if termination=1, opt & freq successful if termination=2)
+    termination=$(grep 'Normal termination' $log | wc -l)
+
+else
+	# job is already coplete
+    timeout_status=0
+    termination=1
+fi
 
 # end of job preparation for next submissions
 if [ $timeout_status -eq 124 ]; then		# if the run times out
