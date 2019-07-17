@@ -17,7 +17,7 @@ bash $FLOW/scripts/make-com.sh -i=$pdb_file -r='#p M06/6-31+G(d,p) SCRF=(Solvent
 cd "$S1_SOLV/resubmits" && setup_sbatch "$inchi\_S1_solv.com" "$FLOW/templates/single_g16_dft-opt.sbatch"
 
 # setup T1 DFT optimization (in solvent)
-bash $FLOW/scripts/make-com.sh -i=$pdb_file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt td=(triplets, root=1)' -t=$inchi\_T1_solv -s=3 -l="$T1_SOLV/resubmits"
+bash $FLOW/scripts/make-com.sh -i=$pdb_file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_T1_solv -s=3 -l="$T1_SOLV/resubmits"
 cd "$T1_SOLV/resubmits" && setup_sbatch "$inchi\_T1_solv.com" "$FLOW/templates/single_g16_dft-opt.sbatch"
 
 # setup cation radical DFT optimization (in solvent)
