@@ -15,9 +15,10 @@ function source_config {
 }
 
 function copy_opt_pdbs {
+	source_config
 	local opt_pdbs=$(for file in $S0_VAC/opt_pdbs/*.pdb; do base=$(basename $file); echo "${base/_S0_vac.pdb/}"; done)
 	local to_copy=$(for file in $opt_pdbs; do c=$(ls completed/$file* 2>/dev/null | wc -l); if [[ $c -eq 0 ]]; then echo $file; fi; done)
-	for file in $to_copy; do cp $S0_VAC/opt_pdbs/$file*.pdb .; done
+	for file in $to_copy; do cp $S0_VAC/opt_pdbs/$file*.pdb $file.pdb; done
 }
 
 function move_freq_to_temp {
@@ -320,6 +321,27 @@ function resubmit_array {
 	fi
 	echo "Submitted array with job ID: $jobid"
 }
+
+# creates all missing input files for the current directory
+#
+# effect: Creates .com files for all incomplete jobs in current flow directory
+function get_missing_input_files {
+	source_config
+	local curr_dir=$PWD
+	copy_opt_pdbs
+    if [[ "$curr_dir" == "$S0_SOLV" ]]; then
+		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_S0_solv -l=$S0_SOLV; rm $file; done
+    elif [[ "$curr_dir" == "$S1_SOLV" ]]; then
+		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_S1_solv -l=$S1_SOLV; rm $file; done
+    elif [[ "$curr_dir" == "$T1_SOLV" ]]; then
+		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -s=3 -t=$inchi\_T1_solv -l=$T1_SOLV; rm $file; done
+    elif [[ "$curr_dir" == "$CAT_RAD_VAC" ]]; then
+		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) opt' -t=$inchi\_cat-rad_vac -l=$CAT_RAD_VAC; rm $file; done
+    elif [[ "$curr_dir" == "$CAT_RAD_SOLV" ]]; then
+		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_cat-rad_solv -c=1 -s=2 -l=$CAT_RAD_SOLV; rm $file; done
+	fi
+}
+
 
 # updates the workflow code by pulling the most recent files from GitHub
 # use: pull_flow
