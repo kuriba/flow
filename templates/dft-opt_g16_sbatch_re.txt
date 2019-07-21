@@ -26,27 +26,25 @@ timeout_status=$?
 # termination status (opt successful if termination=1, opt & freq successful if termination=2)
 termination=$(grep 'Normal termination' $log | wc -l)
 
+# check for convergence failure
+convergence_fail=$(grep 'Convergence failure' $log | wc -l)
+
 # end of job handling
-if [ $timeout_status -eq 124 ]; then            # if the run times out
+if [ $timeout_status -eq 124 ] || [ $convergence_fail -eq 1 ]; then            # if the run times out
 
-        # submit restart calc
-        sbatch $title.sbatch
-
-elif [ $convergence_fail -eq 1 ]; then			# if the run encounters a convergence failure
-	
-		# submit restart	
-		restart_opt $title $FLOW_TOOLS/templates/dft-opt_g16_sbatch_re.txt	
+    # submit restart calc
+	restart_opt $title $FLOW_TOOLS/templates/dft-opt_g16_sbatch_re.txt
 
 elif [ $termination -eq 1 ]; then               # if the run terminated successfully
-        # move files to completed directory
-        mv $title* ../completed/
-		cd ../completed/
-        to_all_logs $log
-        setup_freq $log
-        exit 0
+    # move files to completed directory
+    mv $title* ../completed/
+	cd ../completed/
+    to_all_logs $log
+    setup_freq $log
+    exit 0
 else
-        # move files to failed directory
-        mv $title* ../failed_opt/
-        exit 1
+    # move files to failed directory
+    mv $title* ../failed_opt/
+    exit 1
 fi
 
