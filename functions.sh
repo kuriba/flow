@@ -202,7 +202,7 @@ function update_existing_flow {
 # use: extract_data (use anywhere in your workflow directories)
 # effect: generates .json and .xyz files in the mol-data folder of the workflow
 function extract_data {
-	python $FLOW/utils/data-extractor.py
+	python $FLOW/utils/data_extractor.py
 }
 
 # sets up the given $file for restart, intended for PM7 optimization
