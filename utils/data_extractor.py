@@ -6,6 +6,26 @@ from enum import Enum
 import pandas as pd
 
 # sript for extracting data
+def upsearch(dir):
+    curdir = os.getcwd()
+    while os.getcwd() != "/":
+        cwd = os.getcwd()
+        if dir in os.listdir(cwd):
+            found_dir = os.path.abspath(dir)
+            break
+        else:
+            os.chdir("..")
+    try:
+        return found_dir
+    except:
+        raise Exception("Error: directory '{}' not found".format(dir))
+    finally:
+        os.chdir(curdir)
+
+# change to the main flow directory
+cwd = os.getcwd()
+flow_dir = os.path.dirname(upsearch("flow-tools"))
+os.chdir(flow_dir)
 
 mols = []
 
@@ -319,3 +339,5 @@ for mol in mols:
 
     with open("../mol-data/" + json_name, "w") as data_file:
         data_file.write(json.dumps(data))
+
+os.chdir(cwd)
