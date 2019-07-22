@@ -346,10 +346,9 @@ function get_missing_input_files {
 # updates the workflow code by pulling the most recent files from GitHub
 # use: pull_flow
 # effect: Updates $FLOW directory to match GitHub repository
-function pull_flow {
+function update_flow {
     local curr_dir=$PWD
     cd $FLOW
-    git fetch --all
-	git reset --hard origin/master
+    git pull
     cd $curr_dir
 }
