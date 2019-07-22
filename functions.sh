@@ -202,11 +202,7 @@ function update_existing_flow {
 # use: extract_data (use anywhere in your workflow directories)
 # effect: generates .json and .xyz files in the mol-data folder of the workflow
 function extract_data {
-	local cur_dir=$PWD
-	source_config
-	cd $MAIN_DIR
-	python $FLOW_TOOLS/data-extractor.py
-	cd $cur_dir
+	python $FLOW/utils/data-extractor.py
 }
 
 # sets up the given $file for restart, intended for PM7 optimization
@@ -350,5 +346,6 @@ function update_flow {
     local curr_dir=$PWD
     cd $FLOW
     git pull
+	source ~/.bashrc
     cd $curr_dir
 }
