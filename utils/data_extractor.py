@@ -1,6 +1,7 @@
 import subprocess
 import json
 import os
+import re
 from enum import Enum
 import pandas as pd
 
@@ -152,6 +153,18 @@ for mol in mols:
     # get basic mol info
     mol_data = basic_info("../unopt_pdbs/" + mol + "_0.pdb")
 
+	# dipole moment
+    dipole_moment = ""
+    try:
+        with open(s0_vac_freq, "r") as file:
+            for line in file:
+                line = line.strip()
+                if line.startswith("X="):
+                    dipole_moment = line.split("Tot=")[1].strip()
+                    break
+    except:
+        pass
+
     # vertical excitation energy (S1)
     try:
         with open(s1_solv_opt, "r") as file:
@@ -286,7 +299,8 @@ for mol in mols:
         data["properties"]["rp"] = str(redox_pot)
         data["properties"]["0-0_S1"] = str(E00_S1)
         data["properties"]["0-0_T1"] = str(E00_T1)
-        data["properties"]["ve"] = vertical_excitation_energy_s1
+        data["properties"]["vee"] = vertical_excitation_energy_s1
+        data["properties"]["dipole"] = dipole_moment
 
         # S0 solv
         push_data("s0", "solv", s0_solv_geom, s0_solv_energies, data, s0_solv_elec_energy, fmo=True)
