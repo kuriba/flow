@@ -3,6 +3,7 @@ import json
 import os
 import re
 from enum import Enum
+from tqdm import tqdm
 import pandas as pd
 
 # sript for extracting data
@@ -89,6 +90,10 @@ def basic_info(mol):
 
 # function which extracts energies from given log file
 def get_energies(mol):
+
+    def ha_2_eV(ha):
+        return str(27.2114 * float(ha))
+
     try:
         virt_orbs = []
         with open(mol, "r") as file:
@@ -96,41 +101,48 @@ def get_energies(mol):
                 line = line.strip()
                 # free energy
                 if line.startswith("Sum of electronic and thermal Free Energies="):
-                    free_energy = line.split("Energies=")[1].strip()
+                    free_energy = ha_2_eV(line.split("Energies=")[1].strip())
                 # enthalpy
                 if line.startswith("Sum of electronic and thermal Enthalpies="):
-                    enthalpy = line.split("Enthalpies=")[1].strip()
+                    enthalpy = ha_2_eV(line.split("Enthalpies=")[1].strip())
                 # entropy
                 if line.startswith("KCal/Mol"):
                     entropy = next(file).strip().split(" ")[-1]
                 # zpve
                 if line.startswith("Sum of electronic and zero-point Energies="):
-                    zpve = line.split("Energies=")[1].strip()
+                    zpve = ha_2_eV(line.split("Energies=")[1].strip())
                 # homo
                 if line.startswith("Alpha  occ. eigenvalues"):
-                    homo = line.split(" ")[-1]
+                    homo = ha_2_eV(line.split(" ")[-1])
                 # lumo
                 if line.startswith("Alpha virt. eigenvalues"):
                     virt_orbs.append(line)
                 # zpve_correction
                 if line.startswith("Zero-point correction="):
-                    zpve_corr = line.split(" ")[-2].strip()
-        lumo = virt_orbs[0].split("--", 1)[1].strip().split(" ", 1)[0]
+                    zpve_corr = ha_2_eV(line.split(" ")[-2].strip())
+        lumo = ha_2_eV(virt_orbs[0].split("--", 1)[1].strip().split(" ", 1)[0])
 
         return free_energy, enthalpy, entropy, zpve, homo, lumo, zpve_corr
     except:
         return "", "", "", "", "", "", ""
 
 
-def get_scf_energy(mol):
+def get_scf_energy(mol, td=False):
     try:
         scf_energy = ""
         with open(mol, "r") as file:
             for line in file:
                 line = line.strip()
-                if line.startswith("SCF Done:"):
-                    scf_energy = line.split(" ")[6]
-        return scf_energy
+                if not td:
+                    if line.startswith("SCF Done:"):
+                        scf_energy = line.split(" ")[6].strip()
+                else:
+                    if line.startswith("Total Energy, E(TD-HF/TD-DFT)"):
+                        scf_energy = line.split(" ")[-1].strip()
+        try:
+            return str(27.2114 * float(scf_energy))
+        except:
+            return scf_energy
     except:
         return ""
 
@@ -147,8 +159,8 @@ def push_data(state, solv, geom, energies, json_obj, total_electronic_energy, fm
         json_obj[state][solv]["energies"]["lumo"] = energies[5]
 
 # extract data for each molecule
-for mol in mols:
-    # filenames
+for mol in tqdm(mols, desc="Extracting data..."):
+	# filename
     s1_solv_opt = mol + "_S1_solv.log"
     s1_solv_freq = mol + "_S1_solv_freq.log"
     s1_solv_xyz = mol + "_S1_solv.xyz"
@@ -173,14 +185,39 @@ for mol in mols:
     # get basic mol info
     mol_data = basic_info("../unopt_pdbs/" + mol + "_0.pdb")
 
-	# dipole moment
-    dipole_moment = ""
+	# dipole moment (ground state)
+    dipole_moment_s0 = ""
     try:
-        with open(s0_vac_freq, "r") as file:
+        with open(s0_solv_freq, "r") as file:
             for line in file:
                 line = line.strip()
                 if line.startswith("X="):
-                    dipole_moment = line.split("Tot=")[1].strip()
+                    dipole_moment_s0 = line.split("Tot=")[1].strip()
+                    break
+    except:
+        pass
+	
+	# dipole moment (S1 state)
+    dipole_moment_s1 = ""
+    try:
+        with open(s1_solv_freq, "r") as file:
+            for line in file:
+                line = line.strip()
+                if line.startswith("X="):
+                    dipole_moment_s1 = line.split("Tot=")[1].strip()
+                    break
+    except:
+        pass
+
+
+    # dipole moment (T1 state)
+    dipole_moment_t1 = ""
+    try:
+        with open(t1_solv_freq, "r") as file:
+            for line in file:
+                line = line.strip()
+                if line.startswith("X="):
+                    dipole_moment_t1 = line.split("Tot=")[1].strip()
                     break
     except:
         pass
@@ -191,7 +228,7 @@ for mol in mols:
             for line in file:
                 line = line.strip()
                 if line.startswith("Excited State   1:"):
-                    vertical_excitation_energy_s1 = line.split("eV", 1)[1].split("nm", 1)[0].strip()
+                    vertical_excitation_energy_s1 = line.split("eV", 1)[0].strip().split(" ")[-1].strip()
                     break
     except:
         try:
@@ -199,23 +236,12 @@ for mol in mols:
                 for line in file:
                     line = line.strip()
                     if line.startswith("Excited State   1:"):
-                        vertical_excitation_energy_s1 = line.split("eV", 1)[1].split("nm", 1)[0].strip()
+                        vertical_excitation_energy_s1 = line.split("eV", 1)[0].strip().split(" ")[-1].strip()
                         break
         except:
             vertical_excitation_energy_s1 = ''
 
 
-    # vertical excitation energy (T1)
-    vertical_excitation_energy_t1 = ""
-    try:
-        with open(t1_sp_tddft, "r") as file:
-            for line in file:
-                line = line.strip()
-                if line.startswith("Excited State   1:"):
-                    vertical_excitation_energy_t1 = line.split("eV", 1)[1].split("nm", 1)[0].strip()
-                    break
-    except:
-        pass 
 
     # extract energies
     s1_solv_energies = get_energies(s1_solv_freq)
@@ -228,7 +254,7 @@ for mol in mols:
     # electronic energies
     s0_vac_elec_energy = get_scf_energy(s0_vac_opt)
     s0_solv_elec_energy = get_scf_energy(s0_solv_opt)
-    s1_solv_elec_energy = get_scf_energy(s1_solv_opt)
+    s1_solv_elec_energy = get_scf_energy(s1_solv_opt, td=True)
     cat_rad_vac_elec_energy = get_scf_energy(cat_rad_vac_opt)
     cat_rad_solv_elec_energy = get_scf_energy(cat_rad_solv_opt)
     t1_solv_elec_energy = get_scf_energy(t1_solv_opt)
@@ -250,42 +276,29 @@ for mol in mols:
     write_xyz(cat_rad_solv_xyz, cat_rad_solv_geom)
 
     # COMPUTE PROPERTIES
-    # 0-0 transition energy
-    if (vertical_excitation_energy_s1 != "") and (s0_solv_energies[6] != "") and (s1_solv_energies[6] != ""):
-        delZPVE_eV = 27.211 * (float(s0_solv_energies[6]) - float(s1_solv_energies[6]))
-        c = 2.998 * pow(10, 8)
-        h = 6.626 * pow(10, -34)
-        j2eV = 6.242 * pow(10, 18)
-        vert_ex_meters = float(vertical_excitation_energy_s1) * (pow(10, -9))
-        adiabatic_energy_J = (c * h)/vert_ex_meters
-        adiabatic_energy_eV = adiabatic_energy_J * j2eV
+    # S1 0-0 transition energy
+    if (s0_solv_energies[6] != "") and (s1_solv_energies[6] != "") and (s1_solv_elec_energy != "") and (s0_solv_elec_energy != ""):
+        delZPVE_eV = float(s0_solv_energies[6]) - float(s1_solv_energies[6])
+        adiabatic_energy_eV = float(s1_solv_elec_energy) - float(s0_solv_elec_energy)
         E00_S1 = round(adiabatic_energy_eV - delZPVE_eV,2)
     else:
         E00_S1 = ""
 
-
-    # 0-0 transition energy
-    if (vertical_excitation_energy_t1 != "") and (s0_solv_energies[6] != "") and (t1_solv_energies[6] != ""):
-        delZPVE_eV = 27.211 * (float(s0_solv_energies[6]) - float(t1_solv_energies[6]))
-        c = 2.998 * pow(10, 8)
-        h = 6.626 * pow(10, -34)
-        j2eV = 6.242 * pow(10, 18)
-        vert_ex_meters = float(vertical_excitation_energy_t1) * (pow(10, -9))
-        adiabatic_energy_J = (c * h)/vert_ex_meters
-        adiabatic_energy_eV = adiabatic_energy_J * j2eV
+    # T1 0-0 transition energy
+    if (s0_solv_energies[6] != "") and (t1_solv_energies[6] != "") and (t1_solv_elec_energy != "") and (s0_solv_elec_energy != ""):
+        delZPVE_eV = float(s0_solv_energies[6]) - float(t1_solv_energies[6])
+        adiabatic_energy_eV = float(t1_solv_elec_energy) - float(s0_solv_elec_energy)
         E00_T1 = round(adiabatic_energy_eV - delZPVE_eV,2)
     else:
         E00_T1 = ""
 
-
     # ionization potential
     if (s0_vac_energies[1] != "") and (cat_rad_vac_energies[1] != ""):
-        ip = round(27.211 * (float(cat_rad_vac_energies[1]) - float(s0_vac_energies[1])), 2)
+        ip = round(float(cat_rad_vac_energies[1]) - float(s0_vac_energies[1]), 2)
     else:
         ip = ""
 
-    # redox potential
-    # requires 
+    # oxidation potential
     if "" not in (ip, s0_vac_energies[2], cat_rad_vac_energies[2], s0_solv_energies[0], 
                   s0_vac_energies[0], cat_rad_solv_energies[0], cat_rad_vac_energies[0]):
         # delta_S
@@ -298,9 +311,29 @@ for mol in mols:
         # red solvation energy
         cat_rad_solvation_energy = 627.509 * (float(cat_rad_solv_energies[0]) - float(cat_rad_vac_energies[0]))
 
-        redox_pot = round(ip + (1 / 23.06) * (TdelS + cat_rad_solvation_energy - s0_solvation_energy) - 4.44, 2)
+        ox_pot = round(ip + (1 / 23.06) * (TdelS + cat_rad_solvation_energy - s0_solvation_energy) - 4.44, 2)
     else:
-        redox_pot = ""
+        ox_pot = ""
+
+    # reduction potential
+	# TODO: compute reduction potential, then use result to compute excited state reduction potential
+    # still needs radical anion calculation to compute
+
+    # excited state oxidation potentials (vs NHE)
+    if ox_pot != "":
+		# S1 oxidation potential
+        if E00_S1 != "":
+            ox_pot_s1 = round(ox_pot - E00_S1, 2)
+        else:
+            ox_pot_s1 = ""
+        # T1 oxidation potential
+        if E00_T1 != "":
+            ox_pot_t1 = round(ox_pot - E00_T1, 2)
+        else:
+            ox_pot_t1 = ""
+    else:
+        ox_pot_s1 = ""
+        ox_pot_t1 = ""
 
     # write data
     flow_dir = os.environ['FLOW']
@@ -316,11 +349,15 @@ for mol in mols:
         # properties
         data["properties"]["mw"] = mol_data[1]
         data["properties"]["ip"] = str(ip)
-        data["properties"]["rp"] = str(redox_pot)
+        data["properties"]["rp"] = str(ox_pot)
         data["properties"]["0-0_S1"] = str(E00_S1)
         data["properties"]["0-0_T1"] = str(E00_T1)
         data["properties"]["vee"] = vertical_excitation_energy_s1
-        data["properties"]["dipole"] = dipole_moment
+        data["properties"]["dipole_moment_s0"] = dipole_moment_s0
+        data["properties"]["dipole_moment_s1"] = dipole_moment_s1
+        data["properties"]["dipole_moment_t1"] = dipole_moment_t1
+        data["properties"]["oxidation_potential_s1"] = str(ox_pot_s1)
+        data["properties"]["oxidation_potential_t1"] = str(ox_pot_t1)
 
         # S0 solv
         push_data("s0", "solv", s0_solv_geom, s0_solv_energies, data, s0_solv_elec_energy, fmo=True)
