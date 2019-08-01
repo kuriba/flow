@@ -76,11 +76,9 @@ function submit_array {
 	local calc_time=$5
 
 	source_config
-	# remove existing list of input files
-	rm "$inp_file_list" 2>/dev/null
 
 	# create list of input files
-	ls *."$inp_file_type" >> "$inp_file_list"
+	ls *."$inp_file_type" > "$inp_file_list"
 
 	# number of files in the array
 	local numfiles=$(wc -l <$inp_file_list)
