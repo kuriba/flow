@@ -307,14 +307,13 @@ for mol in tqdm(mols, desc="Extracting data..."):
         delS = float(cat_rad_S) - float(s0_S)
         TdelS = -298.15 * delS
         # ox solvation energy
-        s0_solvation_energy = 627.509 * (float(s0_solv_energies[0]) - float(s0_vac_energies[0]))
+        s0_solvation_energy = 23.0605 * (float(s0_solv_energies[0]) - float(s0_vac_energies[0]))
         # red solvation energy
-        cat_rad_solvation_energy = 627.509 * (float(cat_rad_solv_energies[0]) - float(cat_rad_vac_energies[0]))
+        cat_rad_solvation_energy = 23.0605 * (float(cat_rad_solv_energies[0]) - float(cat_rad_vac_energies[0]))
 
         ox_pot = round(ip + (1 / 23.06) * (TdelS + cat_rad_solvation_energy - s0_solvation_energy) - 4.44, 2)
     else:
         ox_pot = ""
-
     # reduction potential
 	# TODO: compute reduction potential, then use result to compute excited state reduction potential
     # still needs radical anion calculation to compute
@@ -375,6 +374,6 @@ for mol in tqdm(mols, desc="Extracting data..."):
     json_name = mol + ".json"
 
     with open("../mol-data/" + json_name, "w") as data_file:
-        data_file.write(json.dumps(data))
+        data_file.write(json.dumps(data, indent=4))
 
 os.chdir(cwd)
