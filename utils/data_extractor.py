@@ -223,6 +223,7 @@ for mol in tqdm(mols, desc="Extracting data..."):
         pass
 
     # vertical excitation energy (S1)
+    vertical_excitation_energy_s1 = ""
     try:
         with open(s1_solv_opt, "r") as file:
             for line in file:
@@ -239,9 +240,7 @@ for mol in tqdm(mols, desc="Extracting data..."):
                         vertical_excitation_energy_s1 = line.split("eV", 1)[0].strip().split(" ")[-1].strip()
                         break
         except:
-            vertical_excitation_energy_s1 = ''
-
-
+            pass
 
     # extract energies
     s1_solv_energies = get_energies(s1_solv_freq)
