@@ -65,16 +65,16 @@ The initialization script will modify your .bashrc file and assumes it to be loc
 Execution of the workflow is accomplished in three steps: Creating a directory for the workflow, generating and uploading conformers as PDB files to the `unopt_pdbs` folder of the workflow, then submitting the workflow. 
 
 ### Generating molecules
-Molecules can be generated according to the [combinatorial methodology](#combinatorial-molecule-generation) described above. The `mol_gen.py` script included in the `utils` folder can be used to accomplish this. Simply create a SMILES string for a molecule with uranium atoms at the positions where you would like to attach spacer groups.
+Molecules can be generated according to the [combinatorial methodology](#combinatorial-molecule-generation) described above. The `pymolgen.py` script included in the `utils` folder can be used to accomplish this. Simply create a SMILES string for a molecule with uranium atoms at the positions where you would like to attach spacer groups.
 
 <p align="center">
   <img src="https://github.com/kuriba/flow/blob/master/misc/example_mol_gen_input.png" alt="Your image title" width="250"/>
   <p align="center">[U]C1=C(C2=C3C4=CC=C2C=C1)C=CC3=C5C=CC6=C(C=CC7=CC=C4C5=C67)[U]</p>
 </p>
 
-Then run the `mol_gen.py` script from a directory where you'd like to store the generated structures. Run the script as follows (ensure that you have installed the preqrequisite packages and activated the correct environment, see [molecule generation](#molecule-generation) above):
+Then run the `pymolgen.py` script from a directory where you'd like to store the generated structures. Run the script as follows (ensure that you have installed the preqrequisite packages and activated the correct environment, see [molecule generation](#molecule-generation) above):
 ```console
-python mol_gen.py pyroperylenes_2sub [U]C1=C(C2=C3C4=CC=C2C=C1)C=CC3=C5C=CC6=C(C=CC7=CC=C4C5=C67)[U]
+python pymolgen.py pyroperylenes_2sub [U]C1=C(C2=C3C4=CC=C2C=C1)C=CC3=C5C=CC6=C(C=CC7=CC=C4C5=C67)[U]
 ```
 This will combinatorially generate molecules by performing substitutions on the given core. Each unique molecule will then be used to produce four conformers which are placed in a directory called `pyroperylenes_2sub` (the directory is automatically created if it doesn't already exist). The PDB files are named by the InChIKey of the molecule followed by an underscore and number indicating the conformer ID (starting from 0).
 
