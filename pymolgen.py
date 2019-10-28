@@ -85,9 +85,9 @@ for linker in linker_rxns:
 terminal_rxns = {'hydrogen': '[*:1]([Y])>>[*:1]([H])',
                  'hydroxy': '[*:1]([Y])>>[*:1]([OH])',
                  'trifluoromethyl': '[*:1]([Y])>>[*:1][C](F)(F)F',
-                 'trifluoromethoxy': '[*:1]([Y])>>[*:1][O][C](F)(F)F'
+                 'trifluoromethoxy': '[*:1]([Y])>>[*:1][O][C](F)(F)F',
                  'methyl': '[*:1]([Y])>>[*:1][C]',
-                 'methoxy': '[*:1]([Y])>>[*:1][O][C]'
+                 'methoxy': '[*:1]([Y])>>[*:1][O][C]',
                  'nitro': '[*:1]([Y])>>[*:1][N+]([O-])=O',
                  'thiol': '[*:1]([Y])>>[*:1]([SH])',
                  'fluoro': '[*:1]([Y])>>[*:1][F]',
