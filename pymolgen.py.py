@@ -19,7 +19,7 @@ will perform substituions on the core at position indicated using Uranium (U).
 The conformers are written to PDB files in a folder named after the given
 molecule name.
 
-USAGE: python mol_gen.py molecule_name smiles
+USAGE: python pymolgen.py molecule_name smiles
 """
 
 # validate inputs
