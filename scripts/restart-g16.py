@@ -28,7 +28,7 @@ def get_route(com_file):
 def get_opt_options(route):
     opt_keyword = get_opt_keyword(route)
     try:
-        opt_options = opt_keyword.split("=")[1].replace(")", "").replace("(", "").split(",")
+        opt_options = opt_keyword.split("=", 1)[1].replace(")", "").replace("(", "").split(",")
         return opt_options
     except:
         return []
@@ -79,14 +79,17 @@ def needs_restart(com_file, log_file):
 def error_fail(log_file):
     return get_count(log_file, "Error termination") > 0
 
+# determines if the given job encountered a link 9999 failure
+def link_9999_fail(log_file):
+    return get_count(log_file, "Error termination request processed by link 9999.") > 0
+
 # determines if the given job failed due to a convergence failure
 def convergence_fail(log_file):
-    text = open(log_file, "r").read()
-    count = text.count("Convergence failure -- run terminated.")
-    if count > 0:
-        return True
-    else:
-        return False
+    return get_count(log_file, "Convergence failure -- run terminated.") > 0
+
+# determines if the given job failed due to a FormBX failure
+def formbx_fail(log_file):
+    return get_count(log_file, "FormBX had a problem.") > 0
 
 # removes the coordinates, charge, and multiplicity from the given Gaussian input file
 def remove_coord_charge_mult(com_file):
@@ -99,19 +102,32 @@ def remove_coord_charge_mult(com_file):
             else:
                 file.write(line)
 
+# removes repetitive options from opt keyword
+def clean_options(opt_options):
+    opt_options = [opt.lower() for opt in opt_options]
+    opt_options = list(set(opt_options))
+    if any([i.startswith("recalcfc") for i in opt_options]) and "calcfc" in opt_options:
+        opt_options.remove("calcfc")
+    return opt_options
+
 # sets up an optimization to be restarted
 def restart_opt(com_file, log_file, additional_opt_options=[]):
     route = get_route(com_file)
     opt_keyword = get_opt_keyword(route)
     opt_options = get_opt_options(route)
+    print(opt_options)
+    additional_opt_options = [opt.lower() for opt in additional_opt_options]
+    print(additional_opt_options)
     opt_options.append("restart")
-    for option in additional_opt_options:
-        if option not in opt_options:
-            opt_options.append(option)
 
+    opt_options += additional_opt_options
+    opt_options = clean_options(opt_options)
+    print(opt_options)
+    
     oscillating = is_opt_oscillating(log_file)
     if oscillating:
-        if "calcfc" not in opt_options:
+        recalcfc = any([i.startswith("recalcfc") for i in opt_options])
+        if "calcfc" not in opt_options and not recalcfc:
             opt_options.append("calcfc")
         if "maxstep=15" not in opt_options:
             opt_options.append("maxstep=15")
@@ -162,7 +178,6 @@ def clear_gau_files(log_file):
         pass
 
 
-
 for com_file in com_files:
     log_file = com_file.replace(".com", ".log")
     error = error_fail(log_file)
@@ -179,7 +194,9 @@ for com_file in com_files:
         elif "freq" in route:
             restart_freq(com_file)
             clear_gau_files(log_file)
-    elif convergence_fail(log_file):
+    elif convergence_fail(log_file) or formbx_fail(log_file):
         restart_opt(com_file, log_file, additional_opt_options=["calcfc"])
         clear_gau_files(log_file)
-
+    elif link_9999_fail(log_file):
+        restart_opt(com_file, log_file, additional_opt_options=["recalcfc=4"])
+        clear_gau_files(log_file)
