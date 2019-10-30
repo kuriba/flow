@@ -34,6 +34,7 @@ if [[ $completed -eq 0 ]]; then
 	# termination status (opt successful if termination=1, opt & freq successful if termination=2)
 	termination=$(grep 'Normal termination' $log | wc -l)
 	convergence_fail=$(grep 'Convergence failure' $log | wc -l)
+	link_9999_error=$(grep 'Error termination request processed by link 9999.' $log | wc -l)
 else
 	timeout_status=0
 	termination=1
@@ -41,7 +42,7 @@ else
 fi
 
 # end of job preparation for next submissions
-if [ $timeout_status -eq 124 ] || [ $convergence_fail -eq 1 ]; then		# if the run times out or encounters a convergence failure
+if [ $timeout_status -eq 124 ] || [ $convergence_fail -eq 1 ] || [ $link_9999_error -eq 1 ]; then		# if the run times out or encounters a convergence failure
 
 	# move files to timeouts directory 
 	mv $title* resubmits/
