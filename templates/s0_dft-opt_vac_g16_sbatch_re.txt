@@ -2,7 +2,7 @@
 #SBATCH --job-name=JOBNAME_re
 #SBATCH --output=JOBNAME.o
 #SBATCH --error=JOBNAME.e
-#SBATCH -n 16
+#SBATCH -n 14
 #SBATCH -N 1
 #SBATCH --mail-user=EMAIL
 #SBATCH --mail-type=END
