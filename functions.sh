@@ -300,6 +300,8 @@ function resubmit_array {
 		jobid=$(submit_array "$TITLE\_S0_SOLV" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_dft-opt.sbatch" "$DFT_TIME")
 	elif [[ "$curr_dir" == "$S1_SOLV" ]]; then
 		jobid=$(submit_array "$TITLE\_S1_SOLV" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_dft-opt.sbatch" "$DFT_TIME")
+	elif [[ "$curr_dir" == "$SN_SOLV" ]]; then
+		jobid=$(submit_array "$TITLE\_SN_SOLV" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_dft-opt.sbatch" "$DFT_TIME")
 	elif [[ "$curr_dir" == "$T1_SOLV" ]]; then
         jobid=$(submit_array "$TITLE\_T1_SOLV" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_dft-opt.sbatch" "$DFT_TIME")
 	elif [[ "$curr_dir" == "$CAT_RAD_VAC" ]]; then
@@ -326,9 +328,9 @@ function get_missing_input_files {
     if [[ "$curr_dir" == "$S0_SOLV" ]]; then
 		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_S0_solv -l=$S0_SOLV; rm $file; done
     elif [[ "$curr_dir" == "$S1_SOLV" ]]; then
-		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_S1_solv -l=$S1_SOLV; rm $file; done
+		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt td=root=1' -t=$inchi\_S1_solv -l=$S1_SOLV; rm $file; done
     elif [[ "$curr_dir" == "$T1_SOLV" ]]; then
-		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -s=3 -t=$inchi\_T1_solv -l=$T1_SOLV; rm $file; done
+		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt td=root=1' -s=3 -t=$inchi\_T1_solv -l=$T1_SOLV; rm $file; done
     elif [[ "$curr_dir" == "$CAT_RAD_VAC" ]]; then
 		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) opt' -t=$inchi\_cat-rad_vac -l=$CAT_RAD_VAC; rm $file; done
     elif [[ "$curr_dir" == "$CAT_RAD_SOLV" ]]; then
