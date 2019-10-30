@@ -36,20 +36,20 @@ fi
 # end of job handling
 if [ $timeout_status -eq 124 ]; then            # if the run times out
 
-        # submit restart calc
-		python $FLOW/scripts/restart-g16.py $title.com
-        sbatch $title.sbatch
+    # submit restart calc
+	python $FLOW/scripts/restart-g16.py $title.com
+    sbatch $title.sbatch
 
 elif [ $termination -eq 1 ]; then               # if the run terminated successfully
-        # move files to completed directory
-        mv $title* ../completed/
-        cd ../completed/
-		to_all_logs $log
-        exit 0
+    # move files to completed directory
+    mv $title* ../completed/
+    cd ../completed/
+	to_all_logs $log
+    exit 0
 
 else
-        # move files to failed_freq directory
-        mv $title* ../failed_freq/
-        exit 1
+    # move files to failed_freq directory
+    mv $title* ../failed_freq/
+    exit 1
 fi
 
