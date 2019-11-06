@@ -14,7 +14,7 @@ cd "$S0_SOLV/resubmits" && setup_sbatch "$inchi\_S0_solv.com" "$FLOW/templates/s
 
 # setup SN DFT optimization (in solvent)
 oscillator_strengths=$(grep 'Excited S' "$SP_TDDFT/completed/${inchi}_sp-tddft.log" | head -5 | awk '{print $9}')
-i=0
+i=1
 for o in $oscillator_strengths; do
 	os="${o/2:7}"
 	if [[ $(echo $os ">=" 0.1 | bc -l) -eq 1 ]]; then 
