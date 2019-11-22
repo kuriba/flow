@@ -78,6 +78,7 @@ for linker in linker_rxns:
     for i in range(place_holder_count):
         new_mols = list(chain.from_iterable(rxn.RunReactants((core,))))
         core = new_mols[0]
+        Chem.SanitizeMol(core)
     unsubstituted_cores.append(core)
 
 
