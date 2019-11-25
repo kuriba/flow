@@ -90,9 +90,9 @@ other_mol_2.pdb
 
 ### Preparing submission
 ##### Setting up a workflow directory
-To create a directory for your workflow, go to your scratch directory and run the `setup_flow.sh` script followed by the name of the workflow.
+To create a directory for your workflow, go to your scratch directory and run the `setup_flow` command followed by the name of the workflow.
 ```console
-bash $FLOW/utils/setup_flow.sh my_first_workflow
+setup_flow my_first_workflow
 ```
 This will create a workflow directory tree. Maintenance of the structure of the tree is crucial for the proper automation of the flow because it relies on relative positions of directories to automate certain tasks.
 
@@ -103,9 +103,9 @@ begin_calcs
 ```
 
 ##### Monitoring progress
-The `check_prog.py` script is provided for monitoring the progress of a workflow. To use it, simply go to the directory of a running or completed workflow and execute the script.
+The `check_prog` command is provided for monitoring the progress of a workflow. To use it, simply go to the directory of a running or completed workflow and execute the script.
 ```console
-python $FLOW/utils/check_prog.py
+check_prog
 ```
 This will output a small report of the overall progress of the calculations.
 
