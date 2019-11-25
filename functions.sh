@@ -311,9 +311,11 @@ function resubmit_array {
 	elif [[ "$curr_dir" == "$SP_TDDFT" ]]; then
 		jobid=$(submit_array "$TITLE\_SP-TDDFT" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_sp_td-dft.sbatch" "$DFT_TIME")
 	elif [[ "$curr_dir" == "$PM7" ]]; then
-		jobid=$(submit_array "$TITLE\_PM7" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_pm7.sbatch" $PM7_TIME)
+		jobid=$(submit_array "$TITLE\_PM7" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_pm7.sbatch" "$PM7_TIME")
 	elif [[ "$curr_dir" == "$RM1_D" ]]; then
-		jobid=$(submit_array "$TITLE\_RM1-D" "gamess_inp.txt" "inp" $FLOW_TOOLS/templates/array_gamess_rm1-d.sbatch $DFT_TIME)
+		jobid=$(submit_array "$TITLE\_RM1-D" "gamess_inp.txt" "inp" "$FLOW_TOOLS/templates/array_gamess_rm1-d.sbatch" "$DFT_TIME")
+	elif [[ "$curr_dir" == "$SP_DFT" ]]; then
+		jobid=$(submit_array "$TITLE\_SP-DFT" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_sp-dft.sbatch" "$DFT_TIME")
 	fi
 	echo "Submitted array with job ID: $jobid"
 }
@@ -348,4 +350,29 @@ function update_flow {
     git pull
 	source ~/.bashrc
     cd $curr_dir
+}
+
+# begins a workflow
+# use: begin_calcs
+# effect: submits workflow to queue
+function begin_calcs {
+	source_config
+	local curr_dir=$PWD
+	cd $MAIN_DIR
+	bash $FLOW_TOOLS/begin_calcs.sh
+	cd $curr_dir
+}
+
+# checks the progress of a workflow
+# use: check_prog
+# effect: displays a table showing calculation progress for a workflow
+function check_prog {
+	bash $FLOW/utils/check_prog.py
+}
+
+# creates workflow directory tree
+# use: setup_flow <workflow_name>
+# effect: creates a workflow directory with the given name
+function setup_flow {
+	bash $FLOW/utils/setup_flow.sh
 }
