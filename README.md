@@ -97,9 +97,9 @@ bash $FLOW/utils/setup_flow.sh my_first_workflow
 This will create a workflow directory tree. Maintenance of the structure of the tree is crucial for the proper automation of the flow because it relies on relative positions of directories to automate certain tasks.
 
 ##### Submitting the workflow
-Once the workflow directory has been made, place your conformer PDB files in the `unopt_pdbs` folder, then, from the head of the workflow tree, execute the `begin_calcs.sh` script which will use the PDB files to create input files for the PM7 optimization and submit a workflow.
+Once the workflow directory has been made, place your conformer PDB files in the `unopt_pdbs` folder, then, while in the workflow tree, execute the `begin_calcs` command which will use the PDB files to create input files for the PM7 optimization and submit a workflow.
 ```console
-bash flow-tools/begin_calcs.sh
+begin_calcs
 ```
 
 ##### Monitoring progress
