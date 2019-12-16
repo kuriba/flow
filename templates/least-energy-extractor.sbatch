@@ -23,11 +23,13 @@ touch $SP_DFT/lowest-energy-conformers.txt
 for conf in $UNOPT_PDBS/*_0.pdb; do
 	name=$(echo $(basename $conf) | sed "s/_0.pdb//")
 	lowest=$(bash $FLOW_TOOLS/scripts/get_lowest_conf_sp-dft.sh $name)
+	output_file="$lowest\_sp.log"
+	to_all_logs $output_file
 	pdb=$lowest.pdb
 	cd $RM1_D/opt_pdbs/
 	
 	# make single-point TD-DFT .com file and move to sp_td-dft directory
-	bash $FLOW_TOOLS/scripts/make-com.sh -i=$pdb -r='#p M06/6-31+G(d,p) td=(NStates=10) SCRF=(Solvent=Acetonitrile)' -t=$name\_sp-tddft -l=$SP_TDDFT
+	bash $FLOW_TOOLS/scripts/make-com.sh -i=$pdb -r='#p wB97XD/6-31+G(d,p) td=(NStates=10) SCRF=(Solvent=Acetonitrile)' -t=$name\_sp-tddft -l=$SP_TDDFT
 
     # make DFT S0 optimization .com file and move to dft_opt_s0 directory
 	bash $FLOW_TOOLS/scripts/make-com.sh -i=$pdb -r='#p M06/6-31+G(d,p) opt' -t=$name\_S0_vac -l=$S0_VAC
