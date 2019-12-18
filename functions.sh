@@ -1,11 +1,13 @@
 #!/bin/bash
 
+# searches upwards for the given directory
 function upsearch {
     local cur_dir=$PWD
     test / == "$PWD" && return || test -e "$1" && echo "$PWD" && return || cd .. && upsearch "$1"
     cd $cur_dir
 }
 
+# sources the config file for the flow directory
 function source_config {
     local cur_dir=$PWD
     local main_dir=$(upsearch flow-tools)
@@ -14,6 +16,7 @@ function source_config {
     cd $cur_dir
 }
 
+# copies the optimized S0_vac PDB files for the incomplete jobs in the current job directory  
 function copy_opt_pdbs {
 	source_config
 	local opt_pdbs=$(for file in $S0_VAC/opt_pdbs/*.pdb; do base=$(basename $file); echo "${base/_S0_vac.pdb/}"; done)
@@ -37,7 +40,7 @@ function resub_all_freqs {
 
 function transfer_all_logs {
 	source_config
-	for d in "$S0_VAC" "$S0_SOLV" "$S1_SOLV" "$T1_SOLV" "$CAT_RAD_VAC" "$CAT_RAD_SOLV" "$SP_TDDDFT"; do
+	for d in "$S0_VAC" "$S0_SOLV" "$SN_SOLV" "$T1_SOLV" "$CAT_RAD_VAC" "$CAT_RAD_SOLV" "$SP_TDDDFT"; do
 		cp $d/completed/*.log $ALL_LOGS
 	done
 }
@@ -294,6 +297,7 @@ function submit_all_dft_opts {
 function resubmit_array {
 	source_config
 	local curr_dir=$PWD
+    get_missing_input_files
     if [[ "$curr_dir" == "$S0_VAC" ]]; then
         jobid=$(submit_array "$TITLE\_S0_VAC" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_s0_dft-opt_vac.sbatch" "$DFT_TIME")
 	elif [[ "$curr_dir" == "$S0_SOLV" ]]; then
@@ -328,15 +332,45 @@ function get_missing_input_files {
 	local curr_dir=$PWD
 	copy_opt_pdbs
     if [[ "$curr_dir" == "$S0_SOLV" ]]; then
-		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_S0_solv -l=$S0_SOLV; rm $file; done
-    elif [[ "$curr_dir" == "$S1_SOLV" ]]; then
-		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt td=root=1' -t=$inchi\_S1_solv -l=$S1_SOLV; rm $file; done
-    elif [[ "$curr_dir" == "$T1_SOLV" ]]; then
-		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt td=root=1' -s=3 -t=$inchi\_T1_solv -l=$T1_SOLV; rm $file; done
+		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_S0_solv -l=$S0_SOLV -f; rm $file; done
+    elif [[ "$curr_dir" == "$SN_SOLV" ]]; then
+		for file in *.pdb; do 
+			inchi="${file/.pdb/}"; root=$(get_root $inchi)
+			re='^[0-9]+$'
+			if [[ $root =~ $re ]] ; then
+				title="${inchi}_S${root}_solv"
+				bash $FLOW/scripts/make-com.sh -i=$file -r="#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt td=root=$root" -t=$title -l=$SN_SOLV -f
+			fi
+		rm $file
+		done
+	elif [[ "$curr_dir" == "$T1_SOLV" ]]; then
+		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt td=root=1' -s=3 -t=$inchi\_T1_solv -l=$T1_SOLV -f; rm $file; done
     elif [[ "$curr_dir" == "$CAT_RAD_VAC" ]]; then
-		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) opt' -t=$inchi\_cat-rad_vac -l=$CAT_RAD_VAC; rm $file; done
+		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) opt' -t=$inchi\_cat-rad_vac -l=$CAT_RAD_VAC -f; rm $file; done
     elif [[ "$curr_dir" == "$CAT_RAD_SOLV" ]]; then
-		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_cat-rad_solv -c=1 -s=2 -l=$CAT_RAD_SOLV; rm $file; done
+		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_cat-rad_solv -c=1 -s=2 -l=$CAT_RAD_SOLV -f; rm $file; done
+	fi
+}
+
+
+# determines the root to which to optimize the given file
+function get_root {
+	source_config
+	local inchi=$1
+	oscillator_strengths=$(grep 'Excited S' "$SP_TDDFT/completed/${inchi}_sp-tddft.log" 2>/dev/null | head -5 | awk '{print $9}')
+	i=1
+	for o in $oscillator_strengths; do
+		os="${o/2:7}"
+		if [[ $(echo $os ">=" 0.1 | bc -l) -eq 1 ]]; then
+			local n=$i;
+			break;
+		else
+			let "i++"
+		fi
+	done
+	if [ ! -z $n ]; then
+		echo $n
+        unset n
 	fi
 }
 
@@ -361,6 +395,14 @@ function begin_calcs {
 	cd $MAIN_DIR
 	bash $FLOW_TOOLS/begin_calcs.sh
 	cd $curr_dir
+}
+
+
+# restarts a workflow that was stopped
+function restart_flow {
+	source_config
+	local curr_dirr=$PWD
+
 }
 
 # checks the progress of a workflow
