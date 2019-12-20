@@ -300,6 +300,7 @@ function resubmit_array {
     get_missing_input_files
     if [[ "$curr_dir" == "$S0_VAC" ]]; then
         jobid=$(submit_array "$TITLE\_S0_VAC" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_s0_dft-opt_vac.sbatch" "$DFT_TIME")
+		sed "s/S0_DFT_OPT_VAC_ID/$jobid/g" $FLOW_TOOLS/templates/dft-opt_submitter.sbatch | sbatch
 	elif [[ "$curr_dir" == "$S0_SOLV" ]]; then
 		jobid=$(submit_array "$TITLE\_S0_SOLV" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_dft-opt.sbatch" "$DFT_TIME")
 	elif [[ "$curr_dir" == "$S1_SOLV" ]]; then
@@ -322,6 +323,21 @@ function resubmit_array {
 		jobid=$(submit_array "$TITLE\_SP-DFT" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_sp-dft.sbatch" "$DFT_TIME")
 	fi
 	echo "Submitted array with job ID: $jobid"
+}
+
+# resubmits all DFT arrays
+# use: resubmit_all_dft_arrays
+# effect: submits several arrays of jobs
+function resubmit_all_dft_arrays {
+	source_config
+	for d in $S0_VAC $S0_SOLV $SN_SOLV $T1_SOLV $CAT_RAD_VAC $CAT_RAD_SOLV; do
+		cd $d
+		get_missing_input_files
+		num_files=$(ls *.com | wc -l)
+		if [[ $num_files -gt 0 ]]; then
+			resubmit_array
+		fi
+	done
 }
 
 # creates all missing input files for the current directory
@@ -376,7 +392,7 @@ function get_root {
 
 
 # updates the workflow code by pulling the most recent files from GitHub
-# use: pull_flow
+# use: update_flow
 # effect: Updates $FLOW directory to match GitHub repository
 function update_flow {
     local curr_dir=$PWD
