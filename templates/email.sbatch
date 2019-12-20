@@ -4,6 +4,8 @@
 #SBATCH -e JOBNAME.err
 #SBATCH -N 1
 #SBATCH -n 1
+#SBATCH -r lopez_new
+#SBATCH -p general
 #SBATCH --dependency=afterany:JOBID
 #SBATCH --mail-user=EMAIL
 #SBATCH --mail-type=END

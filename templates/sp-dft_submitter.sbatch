@@ -4,6 +4,8 @@
 #SBATCH -e SP-DFT_submitter.e
 #SBATCH -N 1
 #SBATCH -n 1
+#SBATCH -r lopez_new
+#SBATCH -p general
 #SBATCH --parsable
 #SBATCH --dependency=afterany:RM1_ID
 
