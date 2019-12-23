@@ -330,6 +330,7 @@ function resubmit_array {
 # effect: submits several arrays of jobs
 function resubmit_all_dft_arrays {
 	source_config
+	local curr_dir=$PWD
 	for d in $S0_SOLV $SN_SOLV $T1_SOLV $CAT_RAD_VAC $CAT_RAD_SOLV; do
 		cd $d
 		get_missing_input_files
@@ -338,6 +339,7 @@ function resubmit_all_dft_arrays {
 			resubmit_array
 		fi
 	done
+	cd $curr_dir
 }
 
 # creates all missing input files for the current directory
