@@ -434,5 +434,7 @@ function check_prog {
 # use: setup_flow <workflow_name>
 # effect: creates a workflow directory with the given name
 function setup_flow {
-	bash $FLOW/utils/setup_flow.sh "$@"
+	for d in "$@":
+		bash $FLOW/utils/setup_flow.sh $d
+	done
 }
