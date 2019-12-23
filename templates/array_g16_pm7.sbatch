@@ -4,7 +4,7 @@
 #SBATCH -e %A_%a.e	
 #SBATCH -N 1
 #SBATCH -n 14
-#SBATCH -r lopez_new
+#SBATCH --reservation=lopez_new
 #SBATCH -p general
 #SBATCH --array=1-TOTAL%50
 #SBATCH --parsable
