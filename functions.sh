@@ -319,6 +319,7 @@ function resubmit_array {
 		jobid=$(submit_array "$TITLE\_PM7" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_pm7.sbatch" "$PM7_TIME")
 	elif [[ "$curr_dir" == "$RM1_D" ]]; then
 		jobid=$(submit_array "$TITLE\_RM1-D" "gamess_inp.txt" "inp" "$FLOW_TOOLS/templates/array_gamess_rm1-d.sbatch" "$DFT_TIME")
+		sed "s/RM1_ID/$jobid/g" $FLOW_TOOLS/templates/sp-dft_submitter.sbatch | sbatch
 	elif [[ "$curr_dir" == "$SP_DFT" ]]; then
 		jobid=$(submit_array "$TITLE\_SP-DFT" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_sp-dft.sbatch" "$DFT_TIME")
 	fi
