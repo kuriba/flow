@@ -5,7 +5,7 @@
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH --reservation=lopez_new
-#SBATCH -p general
+#SBATCH -p all
 #SBATCH --parsable
 #SBATCH --dependency=afterany:PM7_ID
 
