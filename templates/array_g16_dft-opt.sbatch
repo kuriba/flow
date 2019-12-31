@@ -5,7 +5,7 @@
 #SBATCH -N 1			
 #SBATCH -n 14               			
 #SBATCH --reservation=lopez_new
-#SBATCH -p all
+#SBATCH -p general
 #SBATCH --array=1-TOTAL%30 			
 #SBATCH --parsable
 

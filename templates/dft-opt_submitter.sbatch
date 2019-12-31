@@ -5,7 +5,7 @@
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH --reservation=lopez_new
-#SBATCH -p all
+#SBATCH -p general
 #SBATCH --parsable
 #SBATCH --dependency=afterany:S0_DFT_OPT_VAC_ID
 
