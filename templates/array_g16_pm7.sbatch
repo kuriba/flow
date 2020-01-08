@@ -21,11 +21,15 @@ input_file=$(fetch_input $SLURM_ARRAY_TASK_ID g16_inp.txt)
 title="${input_file/.com/}"
 log=$title.log
 
-# check if job is already complete
+# check if job is already complete or failed
 completed=$(job_finished $log)
+failed=$(job_failed $log "failed")
 
 # run job if incomplete
 if [[ $completed -eq 0 ]]; then
+	if [[ $failed -eq 1 ]]; then
+		make-com.sh -i="failed/$log" -r='#p pm7 opt=(recalcfc=4)' -f
+	fi
     # execute job
     timeout TIME time g16 $input_file
     timeout_status=$?
@@ -70,8 +74,8 @@ if [ $termination -eq 1 ]; then		# if the run terminated successfully
 
 else	
 	# setup and submit restart with calcfc
-	pm7_restart $input_file
-	time g16 $name
+	make-com.sh -i=$log -r='#p pm7 opt=(recalcfc=4)' -f
+	time g16 $input_file
 	
 	termination=$(grep 'Normal termination' $log | wc -l)
 	
