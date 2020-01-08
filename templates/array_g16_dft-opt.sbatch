@@ -22,7 +22,7 @@ title="${input_file/.com/}"
 log=$title.log
 
 # check if job is already complete
-completed=$(already_done $log)
+completed=$(job_finished $log)
 
 # run job if incomplete
 if [[ $completed -eq 0 ]]; then

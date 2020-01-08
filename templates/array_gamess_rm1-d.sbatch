@@ -27,7 +27,7 @@ rm $SCRATCH/gamess_scratch/scr/$title*
 
 
 # check if job is already complete
-completed=$(already_done $out)
+completed=$(job_finished $out)
 
 # run job if incomplete
 if [[ $completed -eq 0 ]]; then

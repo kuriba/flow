@@ -232,8 +232,8 @@ function setup_sbatch {
 	sed -i "s/EMAIL/$DEFAULT_EMAIL/" "$batch_file" & wait
 }
 
-# determines if the job with the given title is already done
-function already_done {
+# determines if the job with the given title is finished
+function job_finished {
 	local output_file_name=$1
 	echo $(ls completed/$output_file_name 2>/dev/null | wc -l)
 }
