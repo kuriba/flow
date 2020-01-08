@@ -206,14 +206,14 @@ function extract_data {
 	python $FLOW/utils/data_extractor.py
 }
 
-# sets up the given $file for restart, intended for PM7 optimization
+# sets up the given .com file for restart (intended for PM7 optimization)
 # use: pm7-restart <com file>
 # effect: modifies the input file by changing the route and deleting the coordinates
 function pm7_restart {
-	local file=$1
-	local route=$(grep '#' $file)
-	sed -i '/[0-9] [0-9]/,$d' $file & wait
-	sed -i "s/$route/#p pm7 opt=calcfc geom=allcheck/" $file & wait
+	local com_file=$1
+	local route=$(grep '#' $com_file)
+	sed -i '/[0-9] [0-9]/,$d' $com_file & wait
+	sed -i "s/$route/#p pm7 opt=calcfc geom=allcheck/" $com_file & wait
 }
 
 # sets up sbatch script for given .com file and sbatch template
@@ -236,6 +236,13 @@ function setup_sbatch {
 function job_finished {
 	local output_file_name=$1
 	echo $(ls completed/$output_file_name 2>/dev/null | wc -l)
+}
+
+# determines if the job with the given title has failed
+function job_failed {
+	local output_file_name=$1
+	local fail_dir=$2
+	echo $(ls $fail_dir/$output_file_name 2>/dev/null | wc -l)
 }
 
 # sets up frequency calculation from geometry from given log file
