@@ -329,6 +329,9 @@ function resubmit_array {
 		sed "s/RM1_ID/$jobid/g" $FLOW_TOOLS/templates/sp-dft_submitter.sbatch | sbatch
 	elif [[ "$curr_dir" == "$SP_DFT" ]]; then
 		jobid=$(submit_array "$TITLE\_SP-DFT" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_sp-dft.sbatch" "$DFT_TIME")
+		LEE_ID=$(sed "s/SP_DFT_ID/$jobid/" $FLOW_TOOLS/templates/least-energy-extractor.sbatch | sed "s/EMAIL/$DEFAULT_EMAIL/" | sbatch)
+		cd $MAIN_DIR
+		sed "s/LEE_ID/$LEE_ID/g" $FLOW_TOOLS/templates/dft-vee_submitter.sbatch | sbatch
 	fi
 	echo "Submitted array with job ID: $jobid"
 }
