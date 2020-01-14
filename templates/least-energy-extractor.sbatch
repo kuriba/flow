@@ -24,7 +24,13 @@ touch $SP_DFT/lowest-energy-conformers.txt
 
 for conf in $UNOPT_PDBS/*_0.pdb; do
 	name=$(echo $(basename $conf) | sed "s/_0.pdb//")
-	lowest=$(bash $FLOW_TOOLS/scripts/get_lowest_conf_sp-dft.sh $name)
+	lowest=$(bash $FLOW_TOOLS/scripts/get_lowest_conf_sp-dft.sh $name 4)
+	
+    # do not create input files if all conformers are not optimized
+    if [[ $lowest -eq -1 ]]; then
+        continue
+    fi
+
 	output_file="$lowest\_sp.log"
 	to_all_logs $output_file
 	pdb=$lowest.pdb
