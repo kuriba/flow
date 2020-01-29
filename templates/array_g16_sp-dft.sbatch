@@ -4,6 +4,7 @@
 #SBATCH -e %A_%a.e
 #SBATCH -N 1
 #SBATCH -n 14
+#SBATCH --reservation=lopez_new
 #SBATCH -p general
 #SBATCH --array=1-TOTAL%50
 #SBATCH --parsable
@@ -34,13 +35,6 @@ if [[ $completed -eq 0 ]]; then
 else
 	termination=1
 fi
-
-
-# rename .o and .e files
-rename_slurm_outputs $SLURM_ARRAY_TASK_ID $title
-
-# termination status (successful if termination=1)
-termination=$(grep 'Normal termination' $log | wc -l)
 
 # end of job preparation for next submissions
 if [ $termination -ge 1 ]; then		# if the run terminated successfully

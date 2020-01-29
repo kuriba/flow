@@ -7,14 +7,30 @@
 source_config
 
 echo -e "\nCommencing workflow [Version $FLOW_VERSION]"
-# convert pdbs to G16 input files for PM7 optimization
+
 cd $UNOPT_PDBS
+# determine charge info for each molecule
+echo -e "\nCompiling molecule charge information..."
+mol_charges_file="mol_charges.txt"
+rm $mol_charges_file 2>/dev/null
+for file in *_0.pdb; do
+	inchi_key="${file:0:27}"
+	charge=$(obabel -ipdb $file -oreport 2>/dev/null | grep 'TOTAL CHARGE' | awk '{print $NF}')
+	if [ -z $charge ]; then
+		charge=0
+	fi
+	echo "$inchi_key $charge" >> $mol_charges_file
+done
+
+# convert pdbs to G16 input files for PM7 optimization
 total_pdbs=$(ls -f *.pdb | wc -l)
 current=1
 echo -e "\nCreating PM7 input files..."
 for file in *.pdb; do
+	inchi_key="${file:0:27}"
+	charge=$(get_charge $inchi_key)
 	progress_bar 100 0 $current $total_pdbs
-	bash $FLOW_TOOLS/scripts/make-com.sh -i=$file -r='#p pm7 opt' -l=$PM7 -f
+	bash $FLOW_TOOLS/scripts/make-com.sh -i=$file -r='#p pm7 opt' -c=$charge -l=$PM7 -f
 	current=$((current + 1))
 done
 echo ""

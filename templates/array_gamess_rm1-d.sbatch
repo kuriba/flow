@@ -19,6 +19,7 @@ input_file=$(fetch_input $SLURM_ARRAY_TASK_ID "gamess_inp.txt")
 #name of molecule and out/err files
 title="${input_file/.inp/}"
 out=$title.o
+inchi_key="${title:0:27}"
 
 # remove existing scratch files
 rm $SCRATCH/gamess_scratch/$title*
@@ -55,7 +56,8 @@ if [ $termination -eq 1 ]; then		# if the run terminated successfully
 
 	# make SP-DFT .com input file
 	cd $RM1_D/opt_pdbs/
-	bash $FLOW_TOOLS/scripts/make-com.sh -i=$title.pdb -r='#p M06/6-31+G(d,p)' -t=$title\_sp -l=$SP_DFT
+	charge=$(get_charge $inchi_key) 
+	bash $FLOW_TOOLS/scripts/make-com.sh -i=$title.pdb -r='#p M06/6-31+G(d,p)' -c=$charge -t=$title\_sp -l=$SP_DFT
 	exit 0	
 else
 	# move files to failed directory

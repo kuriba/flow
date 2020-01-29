@@ -11,7 +11,7 @@ function upsearch {
 function source_config {
     local cur_dir=$PWD
     local main_dir=$(upsearch flow-tools)
-    cd $main_dir
+	cd $main_dir
 	. "flow-tools/config.sh"
     cd $cur_dir
 }
@@ -206,6 +206,16 @@ function extract_data {
 	python $FLOW/utils/data_extractor.py
 }
 
+# gets the charge for the molecule with the given inchi-key 
+# use: get_charge <inchi-key>
+# effect: returns the charge for the molecule with the given inchi-key in the current workflow
+function get_charge {
+	source_config
+	local inchi_key=$1	
+	charge=$(grep "$inchi_key" "$UNOPT_PDBS/mol_charges.txt" | awk '{print $2}')
+	echo $charge
+}
+
 # sets up the given .com file for restart (intended for PM7 optimization)
 # use: pm7-restart <com file>
 # effect: modifies the input file by changing the route and deleting the coordinates
@@ -299,7 +309,7 @@ function submit_all_dft_opts {
 }
 
 # resubmits the jobs in the current directory
-# use: resubmit_array (no arguments, simply call from the workflow directory containing jobs you want to resubmit
+# use: resubmit_array (no arguments, simply call from the workflow directory containing jobs you want to resubmit)
 # effect: submits an array of jobs
 function resubmit_array {
 	source_config
@@ -378,6 +388,8 @@ function get_missing_input_files {
 		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) opt' -t=$inchi\_cat-rad_vac -l=$CAT_RAD_VAC -f; rm $file; done
     elif [[ "$curr_dir" == "$CAT_RAD_SOLV" ]]; then
 		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_cat-rad_solv -c=1 -s=2 -l=$CAT_RAD_SOLV -f; rm $file; done
+	elif [[ "$curr_dir" == "$RM1_D" ]]; then
+		echo "UNSUPPORTED"
 	fi
 }
 

@@ -60,7 +60,9 @@ function fin_handler {
  
 	# make GAMESS RM1-D input
 	cd $PM7/opt_pdbs/
-	bash $FLOW_TOOLS/scripts/pdb2inp.sh $title.pdb $FLOW_TOOLS/templates/gamess_rm1d-opt.txt
+	local inchi_key="${title:0:27}"
+	local charge=$(get_charge $inchi_key)
+	bash $FLOW_TOOLS/scripts/pdb2inp.sh $title.pdb $FLOW_TOOLS/templates/gamess_rm1d-opt.txt $charge
 	mv $title.inp $RM1_D
 }
 

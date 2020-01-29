@@ -2,6 +2,7 @@
 
 file=$1
 gamess_commands=$2
+charge=$3
 
 title="${file/.pdb/}"
 temp="${file/.pdb/.temp}"
@@ -14,3 +15,5 @@ cat $gamess_commands >> $inp
 cat $temp >> $inp
 
 rm $temp
+
+sed -i "s|#CHARGE#|$charge|" $inp
