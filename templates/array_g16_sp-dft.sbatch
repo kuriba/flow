@@ -4,7 +4,6 @@
 #SBATCH -e %A_%a.e
 #SBATCH -N 1
 #SBATCH -n 14
-#SBATCH --reservation=lopez_new
 #SBATCH -p general
 #SBATCH --array=1-TOTAL%50
 #SBATCH --parsable
@@ -21,8 +20,21 @@ input_file=$(fetch_input $SLURM_ARRAY_TASK_ID "g16_inp.txt")
 title="${input_file/.com/}"
 log=$title.log
 
+completed=$(job_finished $log)
+
 # execute job
-time g16 $input_file
+if [[ $completed -eq 0 ]]; then	
+	time g16 $input_file
+
+	# rename .o and .e files
+	rename_slurm_outputs $SLURM_ARRAY_TASK_ID $title
+
+	# termination status (successful if termination=1)	
+	termination=$(grep 'Normal termination' $log | wc -l)
+else
+	termination=1
+fi
+
 
 # rename .o and .e files
 rename_slurm_outputs $SLURM_ARRAY_TASK_ID $title
