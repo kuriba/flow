@@ -4,7 +4,8 @@
 #SBATCH -e JOBNAME.e				
 #SBATCH -N 1	
 #SBATCH -n 14
-#SBATCH -p general
+#SBATCH -p short
+#SBATCH --time=24:00:00
 #SBATCH --mail-user=EMAIL
 #SBATCH --mail-type=END
 #SBATCH --parsable

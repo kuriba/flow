@@ -4,7 +4,8 @@
 #SBATCH -e DFT-OPT_submitter.e
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH -p general
+#SBATCH -p short
+#SBATCH --time=24:00:00
 #SBATCH --parsable
 #SBATCH --dependency=afterany:S0_DFT_OPT_VAC_ID
 
