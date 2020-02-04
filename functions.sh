@@ -459,3 +459,9 @@ function check_prog {
 function setup_flow {
 	bash $FLOW/utils/setup_flow.sh "$@"
 }
+
+
+# temporary function
+function rerun_sp_tddft {
+	bash $FLOW/scripts/rerun_sp_tddft.sh
+}
