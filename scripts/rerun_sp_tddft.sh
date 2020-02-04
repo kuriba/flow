@@ -1,6 +1,7 @@
 # script for rerunning sp-tddft jobs with wB97XD functional
 
 source_config
+update_existing_flow
 cd $SP_TDDFT
 cp completed/*.com . 2>/dev/null
 cp failed/*.com . 2>/dev/null
