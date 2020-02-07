@@ -19,9 +19,28 @@ function source_config {
 # copies the optimized S0_vac PDB files for the incomplete jobs in the current job directory  
 function copy_opt_pdbs {
 	source_config
-	local opt_pdbs=$(for file in $S0_VAC/opt_pdbs/*.pdb; do base=$(basename $file); echo "${base/_S0_vac.pdb/}"; done)
-	local to_copy=$(for file in $opt_pdbs; do c=$(ls completed/$file* 2>/dev/null | wc -l); if [[ $c -eq 0 ]]; then echo $file; fi; done)
-	for file in $to_copy; do cp $S0_VAC/opt_pdbs/$file*.pdb $file.pdb; done
+	local curr_dir=$PWD
+    for d in "$S0_SOLV" "$SN_SOLV" "$T1_SOLV" "$CAT_RAD_VAC" "$CAT_RAD_SOLV"; do 
+		if [[ "$curr_dir" == "$d" ]]; then
+			local opt_pdbs=$(for file in $S0_VAC/opt_pdbs/*.pdb; do base=$(basename $file); echo "${base/_S0_vac.pdb/}"; done)
+			local to_copy=$(for file in $opt_pdbs; do c=$(ls completed/$file* 2>/dev/null | wc -l); if [[ $c -eq 0 ]]; then echo $file; fi; done)
+			for file in $to_copy; do cp $S0_VAC/opt_pdbs/$file*.pdb $file.pdb; done
+			break
+		fi
+	done
+
+	if [[ "$curr_dir" == "$SP_DFT" ]]; then
+        local opt_pdbs=$(for file in $RM1_D/opt_pdbs/*.pdb; do base=$(basename $file); echo "${base:0:29}"; done | uniq)
+        local to_copy=$(for file in $opt_pdbs; do c=$(ls completed/$file* 2>/dev/null | wc -l); if [[ $c -eq 0 ]]; then echo $file; fi; done)
+        for file in $to_copy; do cp $RM1_D/opt_pdbs/$file*.pdb .; done
+    fi
+
+	if [[ "$curr_dir" == "$SP_TDDFT" ]]; then
+        local opt_pdbs=$(for file in $RM1_D/opt_pdbs/*.pdb; do base=$(basename $file); echo "${base:0:29}"; done | uniq)
+        local to_copy=$(for file in $opt_pdbs; do c=$(ls completed/$file* 2>/dev/null | wc -l); if [[ $c -eq 0 ]]; then echo $file; fi; done)
+        for file in $to_copy; do cp $RM1_D/opt_pdbs/$file*.pdb .; done
+		
+	fi
 }
 
 function move_freq_to_temp {
@@ -314,7 +333,12 @@ function submit_all_dft_opts {
 function resubmit_array {
 	source_config
 	local curr_dir=$PWD
-    get_missing_input_files
+    for d in $CAT_RAD_VAC $CAT_RAD_SOLV $S0_VAC $S0_SOLV $S1_SOLV $SP_DFT $T1_SOLV $SP_DFT; do
+		if [[ "$curr_dir" == "$d" ]]; then
+			get_missing_input_files
+			break
+		fi
+	done
     if [[ "$curr_dir" == "$S0_VAC" ]]; then
         jobid=$(submit_array "$TITLE\_S0_VAC" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_s0_dft-opt_vac.sbatch" "$DFT_TIME")
 		sed "s/S0_DFT_OPT_VAC_ID/$jobid/g" $FLOW_TOOLS/templates/dft-opt_submitter.sbatch | sbatch
@@ -340,8 +364,7 @@ function resubmit_array {
 	elif [[ "$curr_dir" == "$SP_DFT" ]]; then
 		jobid=$(submit_array "$TITLE\_SP-DFT" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_sp-dft.sbatch" "$DFT_TIME")
 		LEE_ID=$(sed "s/SP_DFT_ID/$jobid/" $FLOW_TOOLS/templates/least-energy-extractor.sbatch | sed "s/EMAIL/$DEFAULT_EMAIL/" | sbatch)
-		cd $MAIN_DIR
-		sed "s/LEE_ID/$LEE_ID/g" $FLOW_TOOLS/templates/dft-vee_submitter.sbatch | sbatch
+		cd $MAIN_DIR; DFT_VEE_ID=$(sed "s/LEE_ID/$LEE_ID/g" $FLOW_TOOLS/templates/dft-vee_submitter.sbatch | sbatch); cd $curr_dir
 	fi
 	echo "Submitted array with job ID: $jobid"
 }
@@ -390,6 +413,8 @@ function get_missing_input_files {
 		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_cat-rad_solv -c=1 -s=2 -l=$CAT_RAD_SOLV -f; rm $file; done
 	elif [[ "$curr_dir" == "$RM1_D" ]]; then
 		echo "UNSUPPORTED"
+	elif [[ "$curr_dir" == "$SP_DFT" ]]; then
+		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p)' -t=$inchi\_sp -l=$SP_DFT -f; rm $file; done
 	fi
 }
 
