@@ -408,9 +408,9 @@ function get_missing_input_files {
 	elif [[ "$curr_dir" == "$T1_SOLV" ]]; then
 		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt td=root=1' -s=3 -t=$inchi\_T1_solv -l=$T1_SOLV -f; rm $file; done
     elif [[ "$curr_dir" == "$CAT_RAD_VAC" ]]; then
-		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) opt' -t=$inchi\_cat-rad_vac -l=$CAT_RAD_VAC -f; rm $file; done
+		for file in *.pdb; do inchi="${file/.pdb/}"; charge=$(get_charge $inchi_key); bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) opt' -t=$inchi\_cat-rad_vac -c=$(($charge + 1)) -s=2 -l=$CAT_RAD_VAC -f; rm $file; done
     elif [[ "$curr_dir" == "$CAT_RAD_SOLV" ]]; then
-		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_cat-rad_solv -c=1 -s=2 -l=$CAT_RAD_SOLV -f; rm $file; done
+		for file in *.pdb; do inchi="${file/.pdb/}"; charge=$(get_charge $inchi_key); bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_cat-rad_solv -c=$(($charge + 1)) -s=2 -l=$CAT_RAD_SOLV -f; rm $file; done
 	elif [[ "$curr_dir" == "$RM1_D" ]]; then
 		echo "UNSUPPORTED"
 	elif [[ "$curr_dir" == "$SP_DFT" ]]; then
