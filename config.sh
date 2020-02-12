@@ -15,11 +15,10 @@ export PM7=$(readlink -e pm7)
 export RM1_D=$(readlink -e rm1-d)
 export S0_SOLV=$(readlink -e s0_solv)
 export S0_VAC=$(readlink -e s0_vac)
-export SN_SOLV=$(readlink -e sn_solv)
+export S1_SOLV=$(readlink -e sn_solv)
 export SP_DFT=$(readlink -e sp-dft)
 export SP_TDDFT=$(readlink -e sp-tddft)
 export T1_SOLV=$(readlink -e t1_solv)
-export T1_SP_TDDFT=$(readlink -e t1_sp-tddft)
 export UNOPT_PDBS=$(readlink -e unopt_pdbs)
 
 # useful variables
