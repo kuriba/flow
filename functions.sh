@@ -20,7 +20,7 @@ function source_config {
 function copy_opt_pdbs {
 	source_config
 	local curr_dir=$PWD
-    for d in "$S0_SOLV" "$SN_SOLV" "$T1_SOLV" "$CAT_RAD_VAC" "$CAT_RAD_SOLV"; do 
+    for d in "$S0_SOLV" "$S1_SOLV" "$T1_SOLV" "$CAT_RAD_VAC" "$CAT_RAD_SOLV"; do 
 		if [[ "$curr_dir" == "$d" ]]; then
 			local opt_pdbs=$(for file in $S0_VAC/opt_pdbs/*.pdb; do base=$(basename $file); echo "${base/_S0_vac.pdb/}"; done)
 			local to_copy=$(for file in $opt_pdbs; do c=$(ls completed/$file* 2>/dev/null | wc -l); if [[ $c -eq 0 ]]; then echo $file; fi; done)
@@ -59,7 +59,7 @@ function resub_all_freqs {
 
 function transfer_all_logs {
 	source_config
-	for d in "$S0_VAC" "$S0_SOLV" "$SN_SOLV" "$T1_SOLV" "$CAT_RAD_VAC" "$CAT_RAD_SOLV" "$SP_TDDDFT"; do
+	for d in "$S0_VAC" "$S0_SOLV" "$S1_SOLV" "$T1_SOLV" "$CAT_RAD_VAC" "$CAT_RAD_SOLV" "$SP_TDDDFT"; do
 		cp $d/completed/*.log $ALL_LOGS
 	done
 }
@@ -346,8 +346,6 @@ function resubmit_array {
 		jobid=$(submit_array "$TITLE\_S0_SOLV" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_dft-opt.sbatch" "$DFT_TIME")
 	elif [[ "$curr_dir" == "$S1_SOLV" ]]; then
 		jobid=$(submit_array "$TITLE\_S1_SOLV" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_dft-opt.sbatch" "$DFT_TIME")
-	elif [[ "$curr_dir" == "$SN_SOLV" ]]; then
-		jobid=$(submit_array "$TITLE\_SN_SOLV" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_dft-opt.sbatch" "$DFT_TIME")
 	elif [[ "$curr_dir" == "$T1_SOLV" ]]; then
         jobid=$(submit_array "$TITLE\_T1_SOLV" "g16_inp.txt" "com" "$FLOW_TOOLS/templates/array_g16_dft-opt.sbatch" "$DFT_TIME")
 	elif [[ "$curr_dir" == "$CAT_RAD_VAC" ]]; then
@@ -375,7 +373,7 @@ function resubmit_array {
 function resubmit_all_dft_arrays {
 	source_config
 	local curr_dir=$PWD
-	for d in $S0_SOLV $SN_SOLV $T1_SOLV $CAT_RAD_VAC $CAT_RAD_SOLV; do
+	for d in $S0_SOLV $S1_SOLV $T1_SOLV $CAT_RAD_VAC $CAT_RAD_SOLV; do
 		cd $d
 		get_missing_input_files
 		num_files=$(ls *.com | wc -l)
@@ -394,19 +392,11 @@ function get_missing_input_files {
 	local curr_dir=$PWD
 	copy_opt_pdbs
     if [[ "$curr_dir" == "$S0_SOLV" ]]; then
-		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_S0_solv -l=$S0_SOLV -f; rm $file; done
-    elif [[ "$curr_dir" == "$SN_SOLV" ]]; then
-		for file in *.pdb; do 
-			inchi="${file/.pdb/}"; root=$(get_root $inchi)
-			re='^[0-9]+$'
-			if [[ $root =~ $re ]] ; then
-				title="${inchi}_S${root}_solv"
-				bash $FLOW/scripts/make-com.sh -i=$file -r="#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt td=root=$root" -t=$title -l=$SN_SOLV -f
-			fi
-		rm $file
-		done
+		for file in *.pdb; do inchi="${file/.pdb/}"; charge=$(get_charge $inchi_key); bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_S0_solv -c=$charge -l=$S0_SOLV -f; rm $file; done
+    elif [[ "$curr_dir" == "$S1_SOLV" ]]; then
+		for file in *.pdb; do inchi="${file/.pdb/}"; charge=$(get_charge $inchi_key); bash $FLOW/scripts/make-com.sh -i=$file -r="#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt td=root=1" -t=$inchi\_S1_solv -c=$charge -l=$S1_SOLV -f; rm $file; done
 	elif [[ "$curr_dir" == "$T1_SOLV" ]]; then
-		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt td=root=1' -s=3 -t=$inchi\_T1_solv -l=$T1_SOLV -f; rm $file; done
+		for file in *.pdb; do inchi="${file/.pdb/}"; charge=$(get_charge $inchi_key); bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt td=root=1' -s=3 -t=$inchi\_T1_solv -c=$charge -l=$T1_SOLV -f; rm $file; done
     elif [[ "$curr_dir" == "$CAT_RAD_VAC" ]]; then
 		for file in *.pdb; do inchi="${file/.pdb/}"; charge=$(get_charge $inchi_key); bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) opt' -t=$inchi\_cat-rad_vac -c=$(($charge + 1)) -s=2 -l=$CAT_RAD_VAC -f; rm $file; done
     elif [[ "$curr_dir" == "$CAT_RAD_SOLV" ]]; then
@@ -414,10 +404,29 @@ function get_missing_input_files {
 	elif [[ "$curr_dir" == "$RM1_D" ]]; then
 		echo "UNSUPPORTED"
 	elif [[ "$curr_dir" == "$SP_DFT" ]]; then
-		for file in *.pdb; do inchi="${file/.pdb/}"; bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p)' -t=$inchi\_sp -l=$SP_DFT -f; rm $file; done
+		for file in *.pdb; do inchi="${file/.pdb/}"; charge=$(get_charge $inchi_key); bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p)' -t=$inchi\_sp -l=$SP_DFT -c=$charge -f; rm $file; done
 	fi
 }
 
+
+# update molecule charge file
+function update_mol_charges {
+	source_config
+	local curr_dir=$PWD
+	cd $UNOPT_PDBS
+	# determine charge info for each molecule
+	mol_charges_file="mol_charges.txt"
+	rm $mol_charges_file 2>/dev/null
+	for file in *_0.pdb; do
+		inchi_key="${file:0:27}"
+		charge=$(obabel -ipdb $file -oreport 2>/dev/null | grep 'TOTAL CHARGE' | awk '{print $NF}')
+	    if [ -z $charge ]; then
+			charge=0
+		fi
+		echo "$inchi_key $charge" >> $mol_charges_file
+	done
+	cd $curr_dir
+}
 
 # determines the root to which to optimize the given file
 function get_root {
