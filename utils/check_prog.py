@@ -146,7 +146,7 @@ if __name__ == "__main__":
         print_header()
         get_prog("s0_vac", num_unique_mols, "S0 (in vacuo)", dft=True)
         get_prog("s0_solv", num_unique_mols, "S0 (in MeCN)", dft=True)
-        get_prog("sn_solv", num_unique_mols, "SN (in MeCN)", dft=True)
+        get_prog("s1_solv", num_unique_mols, "S1 (in MeCN)", dft=True)
         get_prog("t1_solv", num_unique_mols, "T1 (in MeCN)", dft=True)
         get_prog("cat-rad_vac", num_unique_mols,
                  "cat-rad (in vacuo)", dft=True)
