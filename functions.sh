@@ -43,6 +43,24 @@ function copy_opt_pdbs {
 	fi
 }
 
+# compiles molecule charges into text file
+function get_charge_info {
+	source_config
+	echo -e "\nCompiling molecule charge information..."
+	cd $UNOPT_PDBS
+	local mol_charges_file="mol_charges.txt"
+	rm $mol_charges_file 2>/dev/null
+	for file in *_0.pdb; do
+		inchi_key="${file:0:27}"
+		charge=$(obabel -ipdb $file -oreport 2>/dev/null | grep 'TOTAL CHARGE' | awk '{print $NF}')
+		if [ -z $charge ]; then
+			charge=0
+		fi
+		echo "$inchi_key $charge" >> $mol_charges_file
+	done
+}
+ 
+
 function move_freq_to_temp {
 	mkdir temp
 	for file in *freq.log; do mv "${file/_freq.log/}"* temp; done

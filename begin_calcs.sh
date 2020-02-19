@@ -10,17 +10,7 @@ echo -e "\nCommencing workflow [Version $FLOW_VERSION]"
 
 cd $UNOPT_PDBS
 # determine charge info for each molecule
-echo -e "\nCompiling molecule charge information..."
-mol_charges_file="mol_charges.txt"
-rm $mol_charges_file 2>/dev/null
-for file in *_0.pdb; do
-	inchi_key="${file:0:27}"
-	charge=$(obabel -ipdb $file -oreport 2>/dev/null | grep 'TOTAL CHARGE' | awk '{print $NF}')
-	if [ -z $charge ]; then
-		charge=0
-	fi
-	echo "$inchi_key $charge" >> $mol_charges_file
-done
+get_charge_info
 
 # convert pdbs to G16 input files for PM7 optimization
 total_pdbs=$(ls -f *.pdb | wc -l)
