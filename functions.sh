@@ -513,7 +513,11 @@ function setup_flow {
 }
 
 
-# temporary function
+# temporary functions
 function rerun_sp_tddft {
 	bash $FLOW/scripts/rerun_sp_tddft.sh
+}
+
+function rerun_s1_opts {
+	bash $FLOW/scripts/sn-xyz-extract.sh
 }
