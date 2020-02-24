@@ -13,7 +13,7 @@ charge=$(get_charge $inchi)
 bash $FLOW/scripts/make-com.sh -i=$pdb_file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -c=$charge -t=$inchi\_S0_solv -l=$S0_SOLV
 
 # setup S1 DFT optimization (in solvent)
-bash $FLOW/scripts/make-com.sh -i=$pdb_file -r="#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt td=root=1" -c=$charge -t=$title\_S1_solv -l=$S1_SOLV
+bash $FLOW/scripts/make-com.sh -i=$pdb_file -r="#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt td=root=1" -c=$charge -t=$inchi\_S1_solv -l=$S1_SOLV
 
 # setup T1 DFT optimization (in solvent)
 bash $FLOW/scripts/make-com.sh -i=$pdb_file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_T1_solv -c=$charge -s=3 -l=$T1_SOLV
