@@ -29,6 +29,12 @@ function copy_opt_pdbs {
 		fi
 	done
 
+	if [[ "$curr_dir" == "$S0_VAC" ]]; then
+		local opt_pdbs=$(cat $SP_DFT/lowest-energy-conformers.txt)
+		local to_copy=$(for file in $opt_pdbs; do c=$(ls completed/"${file:0:27}"* 2>/dev/null | wc -l); if [[ $c -eq 0 ]]; then echo $file; fi; done)
+		for file in $to_copy; do cp $RM1_D/opt_pdbs/$file.pdb "${file:0:27}.pdb"; done
+	fi
+
 	if [[ "$curr_dir" == "$SP_DFT" ]]; then
         local opt_pdbs=$(for file in $RM1_D/opt_pdbs/*.pdb; do base=$(basename $file); echo "${base:0:29}"; done | uniq)
         local to_copy=$(for file in $opt_pdbs; do c=$(ls completed/$file* 2>/dev/null | wc -l); if [[ $c -eq 0 ]]; then echo $file; fi; done)
@@ -36,16 +42,16 @@ function copy_opt_pdbs {
     fi
 
 	if [[ "$curr_dir" == "$SP_TDDFT" ]]; then
-        local opt_pdbs=$(for file in $RM1_D/opt_pdbs/*.pdb; do base=$(basename $file); echo "${base:0:29}"; done | uniq)
-        local to_copy=$(for file in $opt_pdbs; do c=$(ls completed/$file* 2>/dev/null | wc -l); if [[ $c -eq 0 ]]; then echo $file; fi; done)
-        for file in $to_copy; do cp $RM1_D/opt_pdbs/$file*.pdb .; done
-		
+		local opt_pdbs=$(cat $SP_DFT/lowest-energy-conformers.txt)
+		local to_copy=$(for file in $opt_pdbs; do c=$(ls completed/"${file:0:27}"* 2>/dev/null | wc -l); if [[ $c -eq 0 ]]; then echo $file; fi; done)
+		for file in $to_copy; do cp $RM1_D/opt_pdbs/$file.pdb "${file:0:27}.pdb"; done
 	fi
 }
 
 # compiles molecule charges into text file
 function get_charge_info {
 	source_config
+	local curr_dirr=$PWD
 	echo -e "\nCompiling molecule charge information..."
 	cd $UNOPT_PDBS
 	local mol_charges_file="mol_charges.txt"
@@ -58,6 +64,7 @@ function get_charge_info {
 		fi
 		echo "$inchi_key $charge" >> $mol_charges_file
 	done
+	cd $curr_dirr
 }
  
 
@@ -409,7 +416,9 @@ function get_missing_input_files {
 	source_config
 	local curr_dir=$PWD
 	copy_opt_pdbs
-    if [[ "$curr_dir" == "$S0_SOLV" ]]; then
+    if [[ "$curr_dir" == "$S0_VAC" ]]; then
+		for file in *.pdb; do inchi="${file/.pdb/}"; charge=$(get_charge $inchi_key); bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) opt' -t=$inchi\_S0_vac -c=$charge -l=$S0_VAC -f; rm $file; done
+	elif [[ "$curr_dir" == "$S0_SOLV" ]]; then
 		for file in *.pdb; do inchi="${file/.pdb/}"; charge=$(get_charge $inchi_key); bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt' -t=$inchi\_S0_solv -c=$charge -l=$S0_SOLV -f; rm $file; done
     elif [[ "$curr_dir" == "$S1_SOLV" ]]; then
 		for file in *.pdb; do inchi="${file/.pdb/}"; charge=$(get_charge $inchi_key); bash $FLOW/scripts/make-com.sh -i=$file -r="#p M06/6-31+G(d,p) SCRF=(Solvent=Acetonitrile) opt td=root=1" -t=$inchi\_S1_solv -c=$charge -l=$S1_SOLV -f; rm $file; done
@@ -423,6 +432,8 @@ function get_missing_input_files {
 		echo "UNSUPPORTED"
 	elif [[ "$curr_dir" == "$SP_DFT" ]]; then
 		for file in *.pdb; do inchi="${file/.pdb/}"; charge=$(get_charge $inchi_key); bash $FLOW/scripts/make-com.sh -i=$file -r='#p M06/6-31+G(d,p)' -t=$inchi\_sp -l=$SP_DFT -c=$charge -f; rm $file; done
+	elif [[ "$curr_dir" == "$SP_TDDFT" ]]; then
+		for file in *.pdb; do inchi="${file/.pdb/}"; charge=$(get_charge $inchi_key); bash $FLOW/scripts/make-com.sh -i=$file -r='#p wB97XD/6-31+G(d,p) td=(NStates=10) SCRF=(Solvent=Acetonitrile)' -t=$inchi\_sp-tddft -l=$SP_TDDFT -c=$charge -f; rm $file; done
 	fi
 }
 
@@ -468,6 +479,15 @@ function get_root {
 }
 
 
+# updates the partition specified in the sbatch submission scripts for a workflow
+# use: update_partition <partition>
+function update_partition {
+	local curr_dir=$PWD
+	local partition=$1
+	source_config
+	sed -i "s|#SBATCH -p short|#SBATCH -p $partition|" $FLOW_TOOLS/templates/*.sbatch
+}
+
 # updates the workflow code by pulling the most recent files from GitHub
 # use: update_flow
 # effect: Updates $FLOW directory to match GitHub repository
@@ -488,6 +508,13 @@ function begin_calcs {
 	cd $MAIN_DIR
 	bash $FLOW_TOOLS/begin_calcs.sh
 	cd $curr_dir
+}
+
+
+# sources g16.profile
+function source_g16_profile {
+	export g16root=/work/lopez/
+	. $g16root/g16/bsd/g16.profile
 }
 
 
